@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FCFBF8" id="themeColor">
 <meta name="description" content="Today&#x27;s menus from Cambridge colleges and cafés, side by side.">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Cam Caffs</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%23133844%22%2F%3E%3Cpath%20d%3D%22M%2025.38%2022.82%20A%2011.6%2011.6%200%201%201%2025.38%209.18%20L%2024.30%2010.77%20A%208.9%208.9%200%201%200%2024.30%2021.23%20Z%22%20fill%3D%22%2300BDB6%22%2F%3E%3Cpath%20d%3D%22M%2020.90%2020.42%20A%206.6%206.6%200%201%201%2020.90%2011.58%20L%2018.88%2014.13%20A%202.8%202.8%200%201%200%2018.88%2017.87%20Z%22%20fill%3D%22%23FFFFFF%22%2F%3E%3C%2Fsvg%3E">
 <script>
@@ -236,9 +239,6 @@ html[data-theme="dark"] .lg-scholars{background:#EFEBE2;border-radius:50%}
 .acts .act:hover{color:var(--accent)}
 .serving{font-size:12px;color:var(--ink-3);padding-top:6px}
 .pnotes{display:grid;gap:8px;padding-top:10px}
-.counts{display:flex;flex-wrap:wrap;gap:12px;padding-top:8px;font-size:11.5px;color:var(--ink-3)}
-.counts .tag{margin-left:0;margin-right:3px}
-.counts .tag.opt::after{content:""}
 
 .course{padding-top:12px}
 .course h3{display:flex;align-items:baseline;gap:9px;margin:0 0 5px;font:500 10.5px/1 var(--sans);
@@ -441,7 +441,7 @@ footer details ul{margin:8px 0 0;padding-left:16px}
 
 <script>
 /* Your Apps Script /exec URL. Leave empty if this page is served by the script itself. */
-const API_URL = "https://script.google.com/macros/s/AKfycbyYQmlPux3VQTPDqGDOnMCEcII5PyXz8LY7DI4G9XOjW6vKM22dkaVR2lW-QK5hA0uL/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxglSIZPBwLuqyd20RTWvC1Qga54N268EoBMlVi8V0Urwuag-gINIiJdVccx9GmViGV/exec";
 /* Filled in by the server when the page is served by Apps Script, so the menus arrive with the page. */
 const BOOT = /*BOOT*/null;
 const COPY = {
@@ -1381,11 +1381,9 @@ let partialSeen = false;   // set while drawing all colleges: some college only 
 function mealHTML(c, m, compact){
   const cov = coverage(c), filt = filtering();
   let hits = 0, total = 0, judged = false, weight = 88;
-  const tally = {};
   const courses = m.courses.map((course, idx) => {
     const dishes = course.dishes.map((x, j) => ({ x, j, v: filt ? judge(x, cov) : null }));
     if (filt) dishes.sort((a, b) => rank(a.v) - rank(b.v) || a.j - b.j);
-    dishes.forEach(y => (y.x.diet || []).forEach(k => { tally[k] = (tally[k] || 0) + 1; }));
     const n = dishes.filter(y => y.v === "hit").length;
     if (dishes.some(y => y.v === "hit" || y.v === "miss" || y.v === "allergy")) judged = true;
     hits += n; total += dishes.length;
@@ -1423,11 +1421,7 @@ function mealHTML(c, m, compact){
     }
   }
   weight += notes.length * 44;
-  /* what this hall has on, in the same letters the dishes use */
-  const order = ["vegan","vegetarian","pescatarian","halal","gluten-free","gf-option","halal-option","wf-df"];
-  const counts = order.filter(k => tally[k] && TAGS[k])
-    .map(k => '<span class="num">' + tagHTML(k) + " " + tally[k] + "</span>").join("");
-  return { html, notes: notes.join(""), hits, total, judged, weight, counts: counts ? '<div class="counts">' + counts + "</div>" : "" };
+  return { html, notes: notes.join(""), hits, total, judged, weight };
 }
 function headHTML(c, big, m, s){
   const t = trip(c.id), meta = [];
@@ -1435,7 +1429,7 @@ function headHTML(c, big, m, s){
   if (st) meta.push(st);
   else if (m && m.hours) meta.push("<span>" + esc(m.label) + " " + esc(m.hours) + "</span>");
   else if (!((PLACES[c.id] || {}).rules || []).length) meta.push("<span>Times not published</span>");
-  if (t) meta.push('<span class="' + (t.walk <= 10 ? "close" : "") + '">' + esc(travel(t)) + "</span>");
+  if (t) meta.push('<span class="' + (t.walk <= 10 ? "close" : "") + '">' + esc(fmtDist(t.m) + " · " + travel(t)) + "</span>");
   if (big){
     if (sl && sl.label && sl.label !== SIT_LABEL[s]) meta.push("<span>" + esc(sl.label) + "</span>");
     meta.push("<span>" + esc(guestLine(c.id)) + "</span>");
@@ -1534,7 +1528,7 @@ function renderFinder(list, s){
     const st = status(c.id, date, s), sl = st && st.sl, tr = trip(c.id);
     const when = sl ? (sl.open ? "from " + clock(sl.from) : clock(sl.from) + "\u2013" + clock(sl.to)) : "";
     const state = !m ? "no menu" : st && st.state === "open" ? "open now" : st && st.state === "done" ? "over for today" : "";
-    const line = hint ? esc(hint) : [when, state, tr ? tr.walk + " min" : ""].filter(Boolean).join(" \u00b7 ");
+    const line = hint ? esc(hint) : [when, state, tr ? fmtDist(tr.m) + ", " + tr.walk + " min" : ""].filter(Boolean).join(" \u00b7 ");
     return '<button class="ftile' + (c.id === curId && view === "one" ? " cur" : "") + (m ? "" : " idle") +
         (st && st.state === "open" ? " live" : "") + '" data-open="' + c.id + '">' +
       '<span class="fart">' + crestHTML(c.id, 26) + "</span>" +
@@ -1571,7 +1565,7 @@ function renderAll(list, s){
   ncols = colCount();
   const columns = Array.from({ length: ncols }, () => ({ h: 0, html: "" }));
   shown.forEach(({ c, m, r }) => {
-    const panel = '<article class="panel" id="p-' + c.id + '" data-id="' + c.id + '"' + colStyle(c) + ">" + headHTML(c, false, m, s) + r.counts +
+    const panel = '<article class="panel" id="p-' + c.id + '" data-id="' + c.id + '"' + colStyle(c) + ">" + headHTML(c, false, m, s) +
       (r.notes ? '<div class="pnotes">' + r.notes + "</div>" : "") + (m.courses.length ? r.html : "") +
       "</article>";
     const target = columns.reduce((a, b) => b.h < a.h ? b : a);
@@ -1605,7 +1599,7 @@ function renderOne(c, s, list){
     body = '<div class="empty"><h3>' + esc(COPY.notServingTitle) + "</h3><p>" + esc(COPY.emptyNoMenu) + "</p></div>";
   } else {
     const r = mealHTML(c, m);
-    body = r.counts + (r.notes ? '<div class="pnotes">' + r.notes + "</div>" : "") + r.html +
+    body = (r.notes ? '<div class="pnotes">' + r.notes + "</div>" : "") + r.html +
       (filtering() && r.judged && !r.hits ? '<div class="nomatch">' + esc(COPY.emptyNoMatches) + "</div>" : "");
     if (filtering()) summary = " · <b>" + r.hits + "</b> of " + r.total + " dishes fit your filters";
   }
@@ -1718,6 +1712,9 @@ function openFinder(on){
   if (on){ if (DATA) renderFinder(sortedColleges(), currentSit); $("search").focus(); }
 }
 $("search").addEventListener("focus", () => openFinder(true));
+document.addEventListener("pointerdown", e => {
+  if (finderOpen && !e.target.closest("#finder, .fsearch, #findBtn")) openFinder(false);
+});
 $("search").addEventListener("input", e => {
   query = e.target.value;
   $("searchClear").hidden = !query;
@@ -1764,12 +1761,26 @@ $("legend").addEventListener("toggle", () => { $("legendList").hidden = !$("lege
 
 /* ---------- data ---------- */
 function fail(err){
-  if (DATA) return;               /* a failed background check keeps what is on screen */
+  if (DATA){                      /* something is on screen: keep it, but say it is not fresh */
+    $("locErr").hidden = false;
+    $("locErr").textContent = COPY.offline;
+    return;
+  }
   $("wrap").hidden = false;
   $("main").innerHTML = '<div class="panel empty"><h3>Couldn’t load the menus</h3><p>' + esc(err && err.message || err) + "</p></div>";
 }
-function cached(){ try { const v = JSON.parse(localStorage.getItem("caffs.data") || "null"); return v && Array.isArray(v.colleges) ? v : null; } catch(e){ return null; } }
-function keep(d){ try { localStorage.setItem("caffs.data", JSON.stringify(d)); } catch(e){} }
+const KEEP_FOR = 6 * 3600 * 1000;
+function cached(){
+  try {
+    const v = JSON.parse(localStorage.getItem("caffs.data") || "null");
+    if (!v || !Array.isArray(v.colleges) || !v.colleges.length) return null;
+    if (!v.saved || Date.now() - v.saved > KEEP_FOR) return null;    /* older than this and it may be the wrong day */
+    return v;
+  } catch(e){ return null; }
+}
+function keep(d){
+  try { localStorage.setItem("caffs.data", JSON.stringify(Object.assign({ saved: Date.now() }, d))); } catch(e){}
+}
 function applyData(d, fresh){
   if (!d || !Array.isArray(d.colleges) || !d.colleges.length) return fail(new Error("The menus came back empty"));
   if (fresh) keep(d);
@@ -1793,30 +1804,33 @@ function applyData(d, fresh){
   renderLegend();
   if (!first) window.scrollTo(0, y);   /* a background refresh never moves the page */
 }
-function load(){
+function load(retry){
   if (!DATA){
     $("wrap").hidden = false;
     $("main").innerHTML = '<p class="nomatch">' + esc(COPY.loading) + "</p>";
   }
   if (window.google && google.script && google.script.run){
     google.script.run.withSuccessHandler(d => applyData(d, true)).withFailureHandler(fail).getMenus();
-  } else if (API_URL){
-    const stop = new AbortController();
-    const giveUp = setTimeout(() => stop.abort(), 20000);
-    fetch(API_URL + (API_URL.includes("?") ? "&" : "?") + "json&t=" + Date.now(), { signal: stop.signal, cache: "no-store" })
-      .then(r => { if (!r.ok) throw new Error("the server said " + r.status); return r.json(); })
-      .then(d => applyData(d, true))
-      .catch(e => fail(e.name === "AbortError" ? new Error("the server took too long") : e))
-      .finally(() => clearTimeout(giveUp));
-  } else {
-    fail(new Error("this page has no API_URL set"));
+    return;
   }
+  if (!API_URL) return fail(new Error("this page has no API_URL set"));
+  const stop = new AbortController();
+  const giveUp = setTimeout(() => stop.abort(), 20000);
+  fetch(API_URL + (API_URL.includes("?") ? "&" : "?") + "json&t=" + Date.now(),
+        { signal: stop.signal, cache: "no-store" })
+    .then(r => { if (!r.ok) throw new Error("the server said " + r.status); return r.json(); })
+    .then(d => { $("locErr").hidden = true; applyData(d, true); })
+    .catch(e => {
+      if (!retry) return setTimeout(() => load(true), 1500);        /* one more go before giving up */
+      fail(e.name === "AbortError" ? new Error("the server took too long") : e);
+    })
+    .finally(() => clearTimeout(giveUp));
 }
 /* first paint: whatever came with the page, else this device's last copy, then ask the server */
 (function start(){
   const now = BOOT || window.CAFF_DATA || cached();
   if (now) applyData(now, false);
-  if (!BOOT && !window.CAFF_DATA) load();
+  load();                       /* whatever we started with, the server has the last word */
 })();
 /* the server refreshes on its own; we just pick up the newest copy */
 setInterval(() => { if (!document.hidden) load(); }, 10 * 60 * 1000);
