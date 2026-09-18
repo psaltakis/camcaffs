@@ -9,7 +9,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Cam Caffs</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%23133844%22%2F%3E%3Cpath%20d%3D%22M%2025.38%2022.82%20A%2011.6%2011.6%200%201%201%2025.38%209.18%20L%2024.30%2010.77%20A%208.9%208.9%200%201%200%2024.30%2021.23%20Z%22%20fill%3D%22%2300BDB6%22%2F%3E%3Cpath%20d%3D%22M%2020.90%2020.42%20A%206.6%206.6%200%201%201%2020.90%2011.58%20L%2018.88%2014.13%20A%202.8%202.8%200%201%200%2018.88%2017.87%20Z%22%20fill%3D%22%23FFFFFF%22%2F%3E%3C%2Fsvg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2032%2032%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%2317150F%22%2F%3E%3Cg%20transform%3D%22translate%2816%2016%29%20scale%281.06%29%20translate%28-16%20-16%29%22%3E%3Cpath%20d%3D%22M4.6%204.2%20h22.8%20v12.2%20c0%206.5%20-5.5%209.8%20-11.4%2012.4%20c-5.9%20-2.6%20-11.4%20-5.9%20-11.4%20-12.4%20Z%22%20fill%3D%22%23E4173C%22%2F%3E%3Cellipse%20cx%3D%2212.6%22%20cy%3D%2211.4%22%20rx%3D%222.9%22%20ry%3D%223.6%22%20fill%3D%22%23FFCE2B%22%2F%3E%3Crect%20x%3D%2211.2%22%20y%3D%2214.4%22%20width%3D%222.8%22%20height%3D%228.4%22%20rx%3D%221.4%22%20fill%3D%22%23FFCE2B%22%2F%3E%3Cpath%20d%3D%22M19.4%208.4%20v4%20M22.2%208.4%20v4%22%20stroke%3D%22%23FFCE2B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M20.8%2012.4%20v10.4%22%20stroke%3D%22%23FFCE2B%22%20stroke-width%3D%222.8%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
 <script>
 /* set the theme before anything paints, or it flashes white */
 try { if (localStorage.getItem("caffs.theme") === "dark"){ document.documentElement.dataset.theme = "dark"; document.getElementById("themeColor").content = "#131211"; } } catch (e) {}
@@ -41,6 +41,7 @@ try { if (localStorage.getItem("caffs.theme") === "dark"){ document.documentElem
   --wash-meat:#F6E7DF;
   --wash-veg:#F7EFD8;
   --wash-vegan:#E7F1E5;
+  --wash-fish:#E4EDF6;
 }
 html[data-theme="dark"]{
   --paper:#1B1A17;
@@ -63,6 +64,7 @@ html[data-theme="dark"]{
   --wash-meat:#2C1D17;
   --wash-veg:#292211;
   --wash-vegan:#19281E;
+  --wash-fish:#16212D;
 }
 
 *{box-sizing:border-box}
@@ -117,6 +119,7 @@ html[data-theme="dark"] .act .moon{display:none}
   display:grid;gap:7px;border-bottom:1px solid transparent}
 .bar.is-stuck{border-bottom-color:var(--rule)}
 .rowA{display:flex;align-items:center;gap:18px;min-width:0}
+@media(max-width:719px){ .rowA{gap:13px} .days{gap:14px} }
 .rowBC{display:flex;align-items:center;gap:18px;min-width:0}
 .topmark{width:26px;height:26px;color:var(--ink);flex:0 0 auto}
 .topmark svg{width:26px;height:26px}
@@ -132,7 +135,13 @@ html[data-theme="dark"] .act .moon{display:none}
 .sits button{color:var(--ink-3);font-size:13.5px;padding-bottom:2px;border-bottom:1.5px solid transparent}
 .sits button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink);font-weight:500}
 .hours{font-size:12.5px;color:var(--ink-3);white-space:nowrap}
-@media(max-width:719px){.hours{display:none}}
+@media(max-width:719px){
+  .hours{display:none}
+  /* stuck to the top there is not room for the dates as well, and squeezed dates are
+     worse than none: they come back as soon as you are at the top of the page */
+  .bar.is-stuck .days,.bar.is-stuck .rowA .rule{display:none}
+  .bar.is-stuck .sits{margin-left:auto}
+}
 .rule{width:1px;height:15px;background:var(--rule-2);flex:0 0 auto}
 
 /* dietary filters: the word itself takes the colour of what it stands for */
@@ -205,12 +214,13 @@ html[data-theme="dark"] .act .moon{display:none}
 .panel{scroll-margin-top:calc(var(--stick) + 16px)}
 .shell > main{padding-top:4px}
 
-.phead{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:baseline;
-  padding-bottom:7px;border-bottom:1px solid var(--rule)}
-/* the rule under a hall's name takes the hall's own colour, quietly */
+/* every hall gets its own tab: a tinted strip in its colour, the menu on plain paper below */
+.phead{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;
+  padding:9px 10px 8px;margin:0 -10px;border-bottom:1px solid var(--rule);border-top:3px solid var(--c);
+  border-radius:7px 7px 0 0}
 @supports (color:color-mix(in srgb,red 50%,blue)){
-  .phead{border-bottom-color:color-mix(in srgb,var(--c) 42%,var(--paper))}
-  .panel.big .phead{border-bottom-color:color-mix(in srgb,var(--c) 60%,var(--paper))}
+  .phead{background:color-mix(in srgb,var(--c) 8%,var(--paper));border-bottom-color:transparent}
+  html[data-theme="dark"] .phead{background:color-mix(in srgb,var(--c) 16%,var(--paper))}
 }
 .crest{width:30px;height:30px;display:grid;place-items:center;align-self:center}
 .crest img{width:100%;height:100%;object-fit:contain}
@@ -241,7 +251,8 @@ html[data-theme="dark"] .lg-scholars{background:#EFEBE2;border-radius:50%}
 .serving{font-size:12px;color:var(--ink-3);padding-top:6px}
 .pnotes{display:grid;gap:8px;padding-top:10px}
 
-.course{padding-top:12px}
+.course{padding-top:11px}
+.courses > .course:first-child{padding-top:10px}
 .course h3{display:flex;align-items:baseline;gap:9px;margin:0 0 5px;font:500 10.5px/1 var(--sans);
   letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
 .course h3 .cnt{font-size:10.5px;letter-spacing:0;text-transform:none;color:var(--ink-3);opacity:.7}
@@ -251,6 +262,7 @@ html[data-theme="dark"] .lg-scholars{background:#EFEBE2;border-radius:50%}
    two of a kind in a row merge into one field, which is what makes a card scannable. */
 .dish{position:relative;padding:7px 10px;margin:0 -10px;background:var(--wash,transparent)}
 .dish.d-meat{--wash:var(--wash-meat)}
+.dish.d-fish{--wash:var(--wash-fish)}
 .dish.d-veg{--wash:var(--wash-veg)}
 .dish.d-vegan{--wash:var(--wash-vegan)}
 .dname{font:400 15.5px/1.35 var(--serif);text-wrap:pretty}
@@ -283,7 +295,7 @@ html[data-theme="dark"] .lg-scholars{background:#EFEBE2;border-radius:50%}
 /* the one-place page */
 .one .back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-3);margin-bottom:18px}
 .one .back:hover{color:var(--ink)}
-.panel.big .phead{grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:start;padding-bottom:12px;border-bottom:1px solid var(--rule-2)}
+.panel.big .phead{grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:start;padding:14px 16px 13px;margin:0 -16px;border-top-width:4px}
 .panel.big .crest{align-self:start;margin-top:3px}
 .panel.big .crest{width:44px;height:44px}
 .panel.big .mono{width:40px;height:40px;font-size:14px;padding-bottom:6px}
@@ -314,8 +326,16 @@ footer .mark{color:var(--ink-3)}
 footer p{margin:0}
 footer .np{color:var(--ink-2)}
 footer a{color:var(--ink-2)}
-footer details summary{cursor:pointer;list-style:none}
+footer details{margin-top:2px}
+footer details summary{cursor:pointer;list-style:none;color:var(--ink-2);font-weight:500}
+footer details summary{display:flex;align-items:center;gap:7px}
+footer details summary::after{content:"";width:5px;height:5px;border-right:1.5px solid var(--ink-3);
+  border-bottom:1.5px solid var(--ink-3);transform:rotate(45deg) translate(-1px,-1px);transition:transform .15s var(--in)}
+footer details[open] summary::after{transform:rotate(-135deg) translate(-1px,-1px)}
+footer details p{margin:9px 0 0;max-width:62ch}
 footer details ul{margin:8px 0 0;padding-left:16px}
+footer b{font-weight:600;color:var(--ink-2)}
+#wipe{margin-top:4px}
 
 @media(max-width:1099px){
   .cols{gap:26px}
@@ -329,14 +349,15 @@ footer details ul{margin:8px 0 0;padding-left:16px}
   .cols{display:block}
   .col{gap:26px}
   .col + .col{margin-top:26px}
-  .phead{grid-template-columns:26px minmax(0,1fr) auto;gap:9px}
+  .phead{grid-template-columns:26px minmax(0,1fr) auto;gap:9px;padding:8px 9px 7px;margin:0 -9px}
   .crest{width:26px;height:26px}
   .mono{width:23px;height:23px;font-size:9.5px}
   .phead h2{font-size:17px}
   .dname{font-size:14.5px}
   .desc{font-size:12px}
   .alg{font-size:11px}
-  .course{padding-top:12px}
+  .course{padding-top:11px}
+.courses > .course:first-child{padding-top:10px}
   .finder{padding:10px 0 0}
 }
 
@@ -347,7 +368,7 @@ footer details ul{margin:8px 0 0;padding-left:16px}
 
   <header class="top">
     <a class="brand" href="#all" id="homeLink">
-      <svg class="mark" width="30" height="30" aria-hidden="true" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M 27.33 24.23 A 14.0 14.0 0 1 1 27.33 7.77 L 26.04 9.65 A 10.8 10.8 0 1 0 26.04 22.35 Z" fill="var(--mark,#009C96)"/><path d="M 21.95 21.35 A 8.0 8.0 0 1 1 21.95 10.65 L 19.53 13.72 A 3.4 3.4 0 1 0 19.53 18.28 Z" fill="currentColor"/></svg>
+      <svg class="mark" width="30" height="30" aria-hidden="true" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M4.6 4.2 h22.8 v12.2 c0 6.5 -5.5 9.8 -11.4 12.4 c-5.9 -2.6 -11.4 -5.9 -11.4 -12.4 Z" fill="#E4173C"/><ellipse cx="12.6" cy="11.4" rx="2.9" ry="3.6" fill="#FFCE2B"/><rect x="11.2" y="14.4" width="2.8" height="8.4" rx="1.4" fill="#FFCE2B"/><path d="M19.4 8.4 v4 M22.2 8.4 v4" stroke="#FFCE2B" stroke-width="2" stroke-linecap="round"/><path d="M20.8 12.4 v10.4" stroke="#FFCE2B" stroke-width="2.8" stroke-linecap="round"/></svg>
       <span><b>Cam Caffs</b><small id="tagline">Today&#x27;s menus from Cambridge colleges and cafés, side by side.</small></span>
     </a>
     <button class="act" id="locBtn" data-near aria-pressed="false" aria-label="Sort places by walking distance"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/></svg>Near me</button>
@@ -366,7 +387,7 @@ footer details ul{margin:8px 0 0;padding-left:16px}
   <div class="sentinel" id="sentinel"></div>
   <div class="bar" id="bar">
     <div class="rowA">
-      <button class="topmark" id="topmark" aria-label="Back to top" hidden><svg class="mark" width="26" height="26" aria-hidden="true" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M 27.33 24.23 A 14.0 14.0 0 1 1 27.33 7.77 L 26.04 9.65 A 10.8 10.8 0 1 0 26.04 22.35 Z" fill="var(--mark,#009C96)"/><path d="M 21.95 21.35 A 8.0 8.0 0 1 1 21.95 10.65 L 19.53 13.72 A 3.4 3.4 0 1 0 19.53 18.28 Z" fill="currentColor"/></svg></button>
+      <button class="topmark" id="topmark" aria-label="Back to top" hidden><svg class="mark" width="26" height="26" aria-hidden="true" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M4.6 4.2 h22.8 v12.2 c0 6.5 -5.5 9.8 -11.4 12.4 c-5.9 -2.6 -11.4 -5.9 -11.4 -12.4 Z" fill="#E4173C"/><ellipse cx="12.6" cy="11.4" rx="2.9" ry="3.6" fill="#FFCE2B"/><rect x="11.2" y="14.4" width="2.8" height="8.4" rx="1.4" fill="#FFCE2B"/><path d="M19.4 8.4 v4 M22.2 8.4 v4" stroke="#FFCE2B" stroke-width="2" stroke-linecap="round"/><path d="M20.8 12.4 v10.4" stroke="#FFCE2B" stroke-width="2.8" stroke-linecap="round"/></svg></button>
       <button class="act findbtn" id="findBtn" aria-expanded="false" aria-controls="finder"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Find</button>
       <nav class="scroll days" id="days" aria-label="Day"></nav>
       <span class="rule"></span>
@@ -428,10 +449,43 @@ footer details ul{margin:8px 0 0;padding-left:16px}
   </div>
 
   <footer>
-    <svg class="mark" width="18" height="18" aria-hidden="true" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M 27.33 24.23 A 14.0 14.0 0 1 1 27.33 7.77 L 26.04 9.65 A 10.8 10.8 0 1 0 26.04 22.35 Z" fill="var(--mark,#009C96)"/><path d="M 21.95 21.35 A 8.0 8.0 0 1 1 21.95 10.65 L 19.53 13.72 A 3.4 3.4 0 1 0 19.53 18.28 Z" fill="currentColor"/></svg>
+    <svg class="mark" width="18" height="18" aria-hidden="true" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M4.6 4.2 h22.8 v12.2 c0 6.5 -5.5 9.8 -11.4 12.4 c-5.9 -2.6 -11.4 -5.9 -11.4 -12.4 Z" fill="#E4173C"/><ellipse cx="12.6" cy="11.4" rx="2.9" ry="3.6" fill="#FFCE2B"/><rect x="11.2" y="14.4" width="2.8" height="8.4" rx="1.4" fill="#FFCE2B"/><path d="M19.4 8.4 v4 M22.2 8.4 v4" stroke="#FFCE2B" stroke-width="2" stroke-linecap="round"/><path d="M20.8 12.4 v10.4" stroke="#FFCE2B" stroke-width="2.8" stroke-linecap="round"/></svg>
     <p class="np">Cam Caffs is a free, non-profit project made by students in their spare time. It isn&#x27;t run by the University or any college.</p>
-    <p>Menus are copied from each kitchen&#x27;s own pages and can change on the day. If you have an allergy, always check with the servery staff before you eat.</p>
-    <p>Menus are checked every 30 minutes. Serving times and guest rules come from each college's own catering pages, and can change in vacations.</p>
+    <p><b>If you have an allergy, do not rely on this page.</b> The dietary marks and allergen lists are only as good as
+      what each kitchen publishes, and many publish nothing at all. Always check with the servery staff before you eat.</p>
+    <p>Menus are copied automatically from each kitchen's own public pages every 30 minutes. They change on the day,
+      run out, and are sometimes published late or not at all. Serving times and guest rules come from each college's
+      own pages and are often different in vacations.</p>
+
+    <details>
+      <summary>Who runs this, and what it is not</summary>
+      <p>Cam Caffs is a free, non-profit project made by students in their spare time. It is not run by, endorsed by,
+        connected to or approved by the University of Cambridge, any College, or University Catering Services.</p>
+      <p>The information here is provided as it is, with no promise that it is accurate, complete or up to date.
+        Use it to decide where to walk for lunch, not for anything that matters. To the extent the law allows, we accept
+        no liability for any loss or inconvenience from relying on it. Nothing here limits any liability that cannot be
+        limited by law.</p>
+      <p>College arms, café logos and the names of every place shown belong to their owners and appear here only to
+        identify each kitchen. No affiliation or endorsement is implied. If you own one of them and would rather it
+        was not shown, ask and it will be removed.</p>
+    </details>
+
+    <details>
+      <summary>What this page stores, and what it does not</summary>
+      <p><b>No cookies. No analytics, no trackers, no accounts, no advertising.</b> Nothing you do here is sent to us,
+        and there is no us to send it to: the page is one file and a script that reads public menu pages.</p>
+      <p>It does keep a few things in your browser's own local storage, so the page behaves the way you left it:
+        the dietary filters you picked, light or dark mode, whether you have asked for walking distances, and a copy of
+        the last menus it loaded so the screen is not blank while the next lot arrive. That stays on your device.
+        You can wipe it whenever you like.</p>
+      <p><b>Location.</b> Nothing happens until you press Near me. Your browser then asks you, and if you agree your
+        position is used inside your browser to sort the places by distance. It is never sent to us or to anyone else,
+        and it is never written down. Directions links open Google Maps with the destination only.</p>
+      <p>The menus themselves are fetched from a Google Apps Script address, so Google sees that request in the same
+        way your internet provider sees every other page you open.</p>
+      <p><button class="clear" id="wipe">Clear what this page has saved on this device</button></p>
+    </details>
+
     <details>
       <summary>Where the menus and crests come from</summary>
       <ul id="sources"></ul>
@@ -442,7 +496,7 @@ footer details ul{margin:8px 0 0;padding-left:16px}
 
 <script>
 /* Your Apps Script /exec URL. Leave empty if this page is served by the script itself. */
-const API_URL = "https://script.google.com/macros/s/AKfycbwwBCx3MugaFG_0SRGZNvuTtdIfKnHmtq4FTx4C-6SQtoeEPVBU7hrhWUdnLWeGLbEf/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyM6wxhSAxF9dx1CqFQla1FoezsDQrLR_eTAIMIKnjszdK-n8wBas65JdkLUWSbMY11/exec";
 /* Filled in by the server when the page is served by Apps Script, so the menus arrive with the page. */
 const BOOT = /*BOOT*/null;
 const COPY = {
@@ -1123,8 +1177,10 @@ const MEAT_RE = /chicken|beef|pork|lamb|mutton|turkey|duck|goose|venison|veal|ba
 const VEG_RE = /vegan|vegetarian|veggie|\bveg\b|plant[- ]based|quorn|tofu|tempeh|seitan|jackfruit|halloumi|paneer|meat[- ]?free|meatless|fishless|beyond|moving mountains|impossible|soya mince|banana blossom|facon|sin carne|cauliflower (wings|steak)|mushroom (burger|mince|stroganoff)|bean burger|beetroot burger|goats cheese|\b(vegetable|lentil|bean|beetroot|mushroom|carrot|coriander)\b[^,]*\b(sausage|burger|meatballs?|kyiv|kiev|mince|lasagn|shepherd|cottage pie|haggis)/;
 /* Fish and seafood count as meat for this filter. */
 const FISH_RE = /\bfish\b|salmon|\bcod\b|haddock|hake|plaice|pollock|coley|tuna|mackerel|sardine|anchovy|seabass|\bbass\b|trout|kipper|prawn|shrimp|crab\b|lobster|crayfish|squid|calamari|scampi|mussel|clam|oyster|scallop|seafood|paella|goujon|kedgeree|smoked salmon/;
+const NOT_FISH_RE = /(king )?oyster mushroom|mushroom "?fish|fishless|plant.based "?fish/;
 const isMeat = x => !(x.diet || []).some(k => k === "vegan" || k === "vegetarian") &&
-  (MEAT_RE.test(String(x.name).toLowerCase()) || FISH_RE.test(String(x.name).toLowerCase())) &&
+  (MEAT_RE.test(String(x.name).toLowerCase()) ||
+   (FISH_RE.test(String(x.name).toLowerCase()) && !NOT_FISH_RE.test(String(x.name).toLowerCase()))) &&
   !VEG_RE.test(String(x.name).toLowerCase());
 const KINDS = [[/plant|vegan/, "plant"], [/vegetarian/, "veggie"], [/starter|soup/, "starter"], [/salad/, "salad"], [/dessert/, "dessert"],
   [/pizza|pasta|jacket/, "pizza"], [/side/, "side"], [/main/, "main"], [/breakfast/, "breakfast"]];
@@ -1332,7 +1388,15 @@ function judge(x, cov){
   if (diets.size){
     let fits = false, might = false;
     for (const p of diets){
-      if (p === "meat"){ if (isMeat(x)) fits = true; continue; }
+      const kind = dishKind(x);
+      if (p === "meat"){ if (kind === "meat" || kind === "fish") fits = true; continue; }
+      if (p === "pescatarian"){
+        if (kind === "fish" || kind === "vegan" || kind === "veg") fits = true;
+        else if (kind === "meat") continue;
+        else if (DIET_OK[p].some(k => diet.includes(k))) fits = true;
+        else might = true;
+        continue;
+      }
       if (!cov.diet || (!cov.full && !diet.length)){ might = true; continue; }
       if (DIET_OK[p].some(k => diet.includes(k))) fits = true;
     }
@@ -1351,13 +1415,13 @@ function tagHTML(k){
 }
 /* meat and fish count as one; anything we can't tell stays unmarked */
 function dishKind(x){
-  const d = x.diet || [];
+  const d = x.diet || [], n = String(x.name).toLowerCase();
   if (d.includes("vegan")) return "vegan";
   if (d.includes("vegetarian")) return "veg";
-  if (isMeat(x)) return "meat";
-  const n = String(x.name).toLowerCase();
-  if (d.includes("pescatarian") || FISH_RE.test(n)) return "meat";
   if (VEG_RE.test(n)) return "veg";
+  if (FISH_RE.test(n) && !MEAT_RE.test(n) && !NOT_FISH_RE.test(n)) return "fish";
+  if (d.includes("pescatarian") && !MEAT_RE.test(n)) return "fish";
+  if (isMeat(x)) return "meat";
   return "none";
 }
 function dishHTML(x, v, filt, extra, full){
@@ -1444,7 +1508,8 @@ function headHTML(c, big, m, s){
     (meta.length ? '<div class="m">' + meta.join("") + "</div>" : "") + "</div>" +
     '<div class="acts"><a class="act" href="' + navUrl(c.id) + '" target="_blank" rel="noopener" aria-label="' +
       esc(fill(COPY.takeMeThereAria, { college: c.full })) + '">' + ICON.nav + (big ? "Directions" : "") + "</a></div></header>" +
-    (!big && m && m.label !== SIT_LABEL[s] ? '<div class="serving">' + esc(m.label) + (m.hours ? " " + esc(m.hours) : "") + "</div>" : "");
+    (!big && m && m.label !== SIT_LABEL[s] && m.label !== SIT_LABEL.menu
+      ? '<div class="serving">' + esc(m.label) + (m.hours ? " " + esc(m.hours) : "") + "</div>" : "");
 }
 const colStyle = c => ' style="--c:' + ((INFO[c.id] || {}).c || "#999") + '"';
 
@@ -1700,6 +1765,10 @@ document.addEventListener("click", e => {
   else if (d.themeBtn !== undefined) setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark", true);
   else if (t.id === "clearPrefs"){ diets.clear(); avoids.clear(); store.set("diets", []); store.set("avoids", []); render(); }
   else if (t.id === "findBtn"){ openFinder(!finderOpen); }
+  else if (t.id === "wipe"){
+    try { Object.keys(localStorage).filter(k => k.indexOf("caffs.") === 0).forEach(k => localStorage.removeItem(k)); } catch(e){}
+    location.reload();
+  }
   else if (t.id === "searchClear"){ query = ""; $("search").value = ""; $("searchClear").hidden = true; openFinder(false); }
   else if (t.id === "allergyBtn"){ const open = $("allergies").hidden; $("allergies").hidden = !open; t.setAttribute("aria-expanded", open); }
   else if (t.id === "topmark") window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
@@ -1792,8 +1861,13 @@ function applyData(d, fresh){
     else if (h === "all") view = "all";
     setTheme(document.documentElement.dataset.theme || "light", false);
     $("legend").open = false; $("legendList").hidden = true;
-    /* they have said yes before, so ask the browser again: it answers without a prompt */
-    if (store.get("useLoc", false) && navigator.geolocation) locate(true);
+    /* only pick the location back up when the browser has already granted it, so nobody
+       gets an unasked-for prompt. anything else waits for Near me to be pressed. */
+    if (store.get("useLoc", false) && navigator.permissions && navigator.geolocation){
+      navigator.permissions.query({ name: "geolocation" })
+        .then(p => { if (p.state === "granted") locate(true); })
+        .catch(() => {});
+    }
   }
   const y = window.scrollY;
   render();
