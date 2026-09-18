@@ -162,7 +162,7 @@ html[data-theme="dark"] .act .moon{display:none}
 .summary{margin:0 auto 0 0;font:500 10.5px/1.4 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2)}
 .summary b{color:var(--accent);font-weight:600}
 .legend summary{letter-spacing:.06em;text-transform:uppercase;font-size:10.5px;font-weight:500}
-.legend summary{list-style:none;cursor:pointer;font-size:12.5px;color:var(--ink-3)}
+.legend summary{list-style:none;cursor:pointer;font-size:10.5px;color:var(--ink-3)}
 .legend summary::-webkit-details-marker{display:none}
 .legend summary:hover{color:var(--ink)}
 .legendlist{display:flex;flex-wrap:wrap;gap:6px 20px;padding:10px 0 2px;font-size:12.5px;color:var(--ink-2);border-bottom:1px solid var(--rule)}
@@ -173,9 +173,9 @@ html[data-theme="dark"] .act .moon{display:none}
 .topnote,.meatnote{margin:10px 0 0}
 
 /* the search box is always there; the grid of places drops down when you use it */
-.finder{padding:4px 0 14px;margin-bottom:10px;border-bottom:1px solid var(--rule);animation:fade .15s var(--in)}
-.fsearch{display:flex;align-items:center;gap:8px;color:var(--ink-3);border-bottom:1px solid var(--rule-2);
-  padding-bottom:6px;margin:14px 0 0;max-width:420px}
+.finder{padding:16px 0 18px;margin-bottom:18px;border-bottom:1px solid var(--rule);animation:fade .15s var(--in)}
+.fsearch{display:flex;align-items:center;gap:9px;color:var(--ink-3);border-bottom:1px solid var(--rule-2);
+  padding-bottom:8px;max-width:420px}
 .fsearch:focus-within{border-bottom-color:var(--ink-2)}
 .fsearch input{flex:1;min-width:0;border:0;background:none;outline:0;color:var(--ink);font:400 14px/1.2 var(--sans)}
 .fsearch input::-webkit-search-cancel-button{display:none}
@@ -198,11 +198,12 @@ html[data-theme="dark"] .act .moon{display:none}
 .fnone{font-size:12.5px;color:var(--ink-3);padding:10px 0}
 
 /* the menus themselves */
-.cols{display:flex;gap:38px;align-items:flex-start}
+.cols{display:flex;gap:34px;align-items:flex-start}
 .col{flex:1;min-width:0;display:flex;flex-direction:column;gap:30px}
-@media(min-width:1100px){.col + .col{padding-left:38px;border-left:1px solid var(--rule)}.cols{gap:0}}
+@media(min-width:1100px){.col + .col{padding-left:46px;border-left:1px solid var(--rule)}.cols{gap:46px}}
 .list.fade{animation:fade .18s var(--in)}
 .panel{scroll-margin-top:calc(var(--stick) + 16px)}
+.shell > main{padding-top:4px}
 
 .phead{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:baseline;
   padding-bottom:7px;border-bottom:1px solid var(--rule)}
@@ -244,11 +245,11 @@ html[data-theme="dark"] .lg-scholars{background:#EFEBE2;border-radius:50%}
 .course h3{display:flex;align-items:baseline;gap:9px;margin:0 0 5px;font:500 10.5px/1 var(--sans);
   letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
 .course h3 .cnt{font-size:10.5px;letter-spacing:0;text-transform:none;color:var(--ink-3);opacity:.7}
-.course ul{list-style:none;margin:0;padding:0}
+.course ul{list-style:none;margin:0 0 2px;padding:0}
 
 /* a dish sits on a band of its own colour, running the full width of the column.
    two of a kind in a row merge into one field, which is what makes a card scannable. */
-.dish{position:relative;padding:6px 12px;margin:0 -12px;background:var(--wash,transparent)}
+.dish{position:relative;padding:7px 10px;margin:0 -10px;background:var(--wash,transparent)}
 .dish.d-meat{--wash:var(--wash-meat)}
 .dish.d-veg{--wash:var(--wash-veg)}
 .dish.d-vegan{--wash:var(--wash-vegan)}
@@ -413,13 +414,13 @@ footer details ul{margin:8px 0 0;padding-left:16px}
   <p class="note topnote" id="locErr" hidden></p>
 
   <div class="shell">
-    <div class="fsearch">
-      <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
-      <input id="search" type="search" placeholder="Search a place or a dish" autocomplete="off" spellcheck="false"
-             aria-label="Search places and dishes" aria-expanded="false" aria-controls="finder">
-      <button class="fclear" id="searchClear" aria-label="Clear search" hidden>&times;</button>
-    </div>
     <aside class="finder" id="finder" aria-label="Every place" hidden>
+      <div class="fsearch">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+        <input id="search" type="search" placeholder="Search a place or a dish" autocomplete="off" spellcheck="false"
+               aria-label="Search places and dishes">
+        <button class="fclear" id="searchClear" aria-label="Clear search" hidden>&times;</button>
+      </div>
       <div class="fgrid" id="fgrid"></div>
       <p class="fnone" id="fnone" hidden>Nothing by that name.</p>
     </aside>
@@ -441,7 +442,7 @@ footer details ul{margin:8px 0 0;padding-left:16px}
 
 <script>
 /* Your Apps Script /exec URL. Leave empty if this page is served by the script itself. */
-const API_URL = "https://script.google.com/macros/s/AKfycbxglSIZPBwLuqyd20RTWvC1Qga54N268EoBMlVi8V0Urwuag-gINIiJdVccx9GmViGV/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwwBCx3MugaFG_0SRGZNvuTtdIfKnHmtq4FTx4C-6SQtoeEPVBU7hrhWUdnLWeGLbEf/exec";
 /* Filled in by the server when the page is served by Apps Script, so the menus arrive with the page. */
 const BOOT = /*BOOT*/null;
 const COPY = {
@@ -1257,8 +1258,8 @@ function sortedColleges(){
 const tooFar = id => { const t = trip(id); return !!(t && reach && t.walk > reach); };
 
 /* ---------- location ---------- */
-function locate(){
-  if (!("geolocation" in navigator)){ locMsg(COPY.locationBlocked); return; }
+function locate(quiet){
+  if (!("geolocation" in navigator)){ if (!quiet) locMsg(COPY.locationBlocked); return; }
   $$("[data-near]").forEach(b => { b.classList.add("busy"); b.setAttribute("aria-busy", "true"); });
   navigator.geolocation.getCurrentPosition(pos => {
     origin = { lat: pos.coords.latitude, lng: pos.coords.longitude, label: "you" };
@@ -1267,7 +1268,7 @@ function locate(){
     render({ fade: true });
   }, () => {
     unbusy();
-    locMsg(COPY.locationBlocked);
+    if (quiet) store.set("useLoc", false); else locMsg(COPY.locationBlocked);
   }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 });
 }
 const unbusy = () => $$("[data-near]").forEach(b => { b.classList.remove("busy"); b.removeAttribute("aria-busy"); });
@@ -1489,7 +1490,6 @@ function controls(dates, sits, s, list){
   $("tagline").textContent = fill(COPY.tagline, { n: DATA.colleges.length });
   $("finder").hidden = !finderOpen;
   $("findBtn").setAttribute("aria-expanded", finderOpen);
-  $("search").setAttribute("aria-expanded", finderOpen);
 
   const key = dates.join() + "|" + sits.join() + "|" + date + "|" + s;
   if (key === barKey) return;
@@ -1708,10 +1708,8 @@ function openFinder(on){
   finderOpen = on;
   $("finder").hidden = !on;
   $("findBtn").setAttribute("aria-expanded", on);
-  $("search").setAttribute("aria-expanded", on);
   if (on){ if (DATA) renderFinder(sortedColleges(), currentSit); $("search").focus(); }
 }
-$("search").addEventListener("focus", () => openFinder(true));
 document.addEventListener("pointerdown", e => {
   if (finderOpen && !e.target.closest("#finder, .fsearch, #findBtn")) openFinder(false);
 });
@@ -1757,7 +1755,7 @@ new IntersectionObserver(([e]) => {
   $("cluster").hidden = !stuck;
 }).observe($("sentinel"));
 if ("ResizeObserver" in window) new ResizeObserver(() => document.documentElement.style.setProperty("--stick", bar.offsetHeight + "px")).observe(bar);
-$("legend").addEventListener("toggle", () => { $("legendList").hidden = !$("legend").open; store.set("legend", $("legend").open); });
+$("legend").addEventListener("toggle", () => { $("legendList").hidden = !$("legend").open; });
 
 /* ---------- data ---------- */
 function fail(err){
@@ -1793,11 +1791,9 @@ function applyData(d, fresh){
     if (college(h)){ view = "one"; curId = h; }
     else if (h === "all") view = "all";
     setTheme(document.documentElement.dataset.theme || "light", false);
-    const open = store.get("legend", false);
-    $("legend").open = open; $("legendList").hidden = !open;
-    if (store.get("useLoc", false) && navigator.permissions && navigator.geolocation){
-      navigator.permissions.query({ name: "geolocation" }).then(p => { if (p.state === "granted") locate(false); }).catch(() => {});
-    }
+    $("legend").open = false; $("legendList").hidden = true;
+    /* they have said yes before, so ask the browser again: it answers without a prompt */
+    if (store.get("useLoc", false) && navigator.geolocation) locate(true);
   }
   const y = window.scrollY;
   render();
