@@ -30,18 +30,18 @@ try { if (localStorage.getItem("caffs.theme") === "dark"){ document.documentElem
   --accent:#0E7C74;
   --good:#2C7A46;
   --bad:#B3402C;
-  --meat:#944828;
-  --veg:#765912;
-  --vegan:#326941;
+  --meat:#A5502E;
+  --veg:#846314;
+  --vegan:#387549;
   --halal:#6B4FA8;
-  --fish:#2A64A4;
+  --fish:#2D6AAD;
   --gf:#1B756C;
   --rose:#9E3F63;
   --mark:#0E7C74;
-  --wash-meat:#F0DACE;
-  --wash-veg:#E9DEBD;
-  --wash-vegan:#D4E3D2;
-  --wash-fish:#D3E0EC;
+  --wash-meat:#F6E7DF;
+  --wash-veg:#F7EFD8;
+  --wash-vegan:#E7F1E5;
+  --wash-fish:#E4EDF6;
   --map:#F2EFE6;
   --river:#CFE0E6;
 }
@@ -63,10 +63,10 @@ html[data-theme="dark"]{
   --gf:#63C8BC;
   --rose:#E795B2;
   --mark:#5AD2C8;
-  --wash-meat:#3F2318;
-  --wash-veg:#34290D;
-  --wash-vegan:#172E1F;
-  --wash-fish:#162B42;
+  --wash-meat:#2C1D17;
+  --wash-veg:#292211;
+  --wash-vegan:#19281E;
+  --wash-fish:#16212D;
   --map:#232120;
   --river:#2C3A40;
 }
@@ -91,7 +91,7 @@ html.no-anim *{transition:none!important;animation:none!important}
 .scroll::-webkit-scrollbar{display:none}
 
 /* masthead */
-.top{display:flex;align-items:baseline;gap:14px;padding-bottom:14px}
+.top{display:flex;align-items:center;gap:14px;padding-bottom:14px}
 .brand{display:flex;align-items:center;gap:11px;margin-right:auto;text-decoration:none;min-width:0}
 .brand .mark{width:46px;height:46px;flex:0 0 auto;color:var(--ink)}
 .brand b{display:block;font:500 25px/1 var(--serif);letter-spacing:-.01em}
@@ -124,7 +124,9 @@ html[data-theme="dark"] .act .moon{display:none}
 .bar.is-stuck{border-bottom-color:var(--rule)}
 .rowA{display:flex;align-items:center;gap:18px;min-width:0}
 @media(max-width:719px){ .rowA{gap:13px} .days{gap:14px} }
-.rowBC{display:flex;align-items:center;gap:18px;min-width:0}
+.rowBC{display:flex;align-items:center;gap:16px;min-width:0}
+.rowBC .scroll{flex:1;min-width:0}
+.findbtn,.mapbtn{flex:0 0 auto}
 .topmark{width:28px;height:28px;color:var(--ink);flex:0 0 auto}
 .topmark svg{width:28px;height:28px}
 .cluster{display:flex;align-items:center;gap:14px;flex:0 0 auto}
@@ -143,7 +145,7 @@ html[data-theme="dark"] .act .moon{display:none}
   .hours{display:none}
   /* stuck to the top there is not room for the dates as well, and squeezed dates are
      worse than none: they come back as soon as you are at the top of the page */
-  .bar.is-stuck .days,.bar.is-stuck .rowA .rule{display:none}
+  .bar.is-stuck .rowA .rule{display:none}
   .bar.is-stuck .sits{margin-left:auto}
 }
 .rule{width:1px;height:15px;background:var(--rule-2);flex:0 0 auto}
@@ -214,8 +216,10 @@ html[data-theme="dark"] .act .moon{display:none}
 
 /* the map as a page of its own */
 .mapview{margin:2px 0 0}
-.maptop{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
-.fitall{font-size:12.5px;color:var(--ink-3);border-bottom:1px solid transparent}
+.maptop{display:flex;align-items:center;gap:14px;margin-bottom:2px}
+.maptop .back{margin-right:auto}
+.maponly{font-size:12.5px;color:var(--ink-2)}
+.fitall{font-size:12.5px;color:var(--ink-3);border-bottom:1px solid transparent;padding:7px 0}
 .fitall:hover{color:var(--ink);border-bottom-color:var(--rule-2)}
 .mapbox{width:100%;height:clamp(360px,64vh,760px);border-radius:10px;overflow:hidden;background:var(--map);
   margin:0 calc(-1 * var(--gut));width:calc(100% + var(--gut) * 2)}
@@ -241,12 +245,15 @@ html[data-theme="dark"] .leaflet-tile{filter:invert(1) hue-rotate(180deg) bright
 .leaflet-popup-content a{color:var(--accent);display:block}
 .leaflet-popup-content .pmenu{margin-top:9px;padding-top:9px;border-top:1px solid var(--rule);
   font:500 14.5px/1.2 var(--serif);text-underline-offset:3px}
-.leaflet-popup-content .pnav{margin-top:7px;font-size:12px;color:var(--ink-3)}
+.leaflet-popup-content .pnav{margin-top:8px;font-size:12.5px;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px}
+.leaflet-popup-content .pnav svg{width:14px;height:14px}
 .leaflet-control-attribution{font-size:10px}
 .maploc{background:var(--paper);color:var(--ink-2);border:0;border-radius:6px;padding:7px 10px;font:500 12.5px/1 var(--sans);
   box-shadow:0 1px 4px rgba(0,0,0,.28);display:inline-flex;align-items:center;gap:6px}
 .maploc:hover{color:var(--ink)}
 .maploc svg{width:14px;height:14px}
+.maploc.busy svg{animation:spin 1s linear infinite}
+.maploc:hover{background:var(--paper);color:var(--ink)}
 @media(max-width:560px){ .pin{width:64px} .pin .pn{max-width:64px;font-size:9px} .pin img,.pin .mono{width:24px;height:24px} }
 
 /* the menus themselves */
@@ -261,10 +268,11 @@ html[data-theme="dark"] .leaflet-tile{filter:invert(1) hue-rotate(180deg) bright
 .phead{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;
   padding:9px 10px 8px;margin:0 -10px;border-bottom:1px solid var(--rule);border-radius:9px 9px 0 0}
 @supports (color:color-mix(in srgb,red 50%,blue)){
-  .panel{background:color-mix(in srgb,var(--c) 5%,var(--paper))}
-  .phead{background:color-mix(in srgb,var(--c) 12%,var(--paper));border-bottom-color:transparent}
-  html[data-theme="dark"] .panel{background:color-mix(in srgb,var(--c) 8%,var(--paper))}
-  html[data-theme="dark"] .phead{background:color-mix(in srgb,var(--c) 18%,var(--paper))}
+  /* one flat colour from the crest down to the last side dish, and a hairline under the name */
+  .panel{background:color-mix(in srgb,var(--c) 16%,var(--paper))}
+  .phead{background:transparent;border-bottom-color:color-mix(in srgb,var(--c) 32%,var(--paper))}
+  html[data-theme="dark"] .panel{background:color-mix(in srgb,var(--c) 12%,var(--paper))}
+  html[data-theme="dark"] .phead{border-bottom-color:color-mix(in srgb,var(--c) 30%,var(--paper))}
 }
 .crest{width:30px;height:30px;display:grid;place-items:center;align-self:center}
 .crest img{width:100%;height:100%;object-fit:contain}
@@ -282,7 +290,10 @@ html[data-theme="dark"] .lg-scholars{background:#EFEBE2;border-radius:50%}
   font:600 10px/1 var(--serif);letter-spacing:.06em;padding-bottom:4px;
   clip-path:polygon(0 0,100% 0,100% 58%,50% 100%,0 58%)}
 .phead h2{margin:0;font:500 19px/1.15 var(--serif);letter-spacing:-.01em}
-.name{font:inherit;text-align:left;border-bottom:1px solid transparent;transition:border-color .12s var(--in)}
+/* the name and the "All 5" toggle are set as text but tapped with a thumb, so their hit
+   boxes are padded out to about 32px without moving a pixel of the type */
+.name{font:inherit;text-align:left;border-bottom:1px solid transparent;transition:border-color .12s var(--in);
+  padding:6px 0;margin:-6px 0}
 .name:hover{border-bottom-color:var(--rule-2)}
 .phead .m{display:flex;flex-wrap:wrap;gap:0 10px;margin-top:3px;font-size:12px;color:var(--ink-3)}
 .phead .m .st{color:var(--ink-2)}
@@ -298,16 +309,21 @@ html[data-theme="dark"] .lg-scholars{background:#EFEBE2;border-radius:50%}
 .pin.other .pn{font-weight:500;font-style:italic}
 .pnotes{display:grid;gap:8px;padding-top:10px}
 
+/* The menu itself is a sheet of paper laid on the hall's tab, so a dish colour means the same
+   thing in every college and never has to fight the colour behind it. */
+.courses{background:var(--paper);border-radius:8px;padding:2px 9px 10px;margin-top:9px}
+.panel.big .courses{padding:4px 12px 14px;border-radius:10px}
 .course{padding-top:11px}
 .courses > .course:first-child{padding-top:10px}
 .course h3{display:flex;align-items:baseline;gap:9px;margin:0 0 5px;font:500 10.5px/1 var(--sans);
   letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
 .course h3 .cnt{font-size:10.5px;letter-spacing:0;text-transform:none;color:var(--ink-3);opacity:.7}
 .course ul{list-style:none;margin:0 0 2px;padding:0}
+.dish.d-none{background:transparent;padding-left:11px}
 
 /* a dish sits on a band of its own colour, running the full width of the column.
    two of a kind in a row merge into one field, which is what makes a card scannable. */
-.dish{position:relative;padding:7px 10px;margin:0 -10px;background:var(--wash,transparent)}
+.dish{position:relative;padding:8px 11px;margin:0 0 3px;border-radius:7px;background:var(--wash,transparent)}
 .dish.d-meat{--wash:var(--wash-meat)}
 .dish.d-fish{--wash:var(--wash-fish)}
 .dish.d-veg{--wash:var(--wash-veg)}
@@ -333,18 +349,19 @@ html[data-theme="dark"] .lg-scholars{background:#EFEBE2;border-radius:50%}
 .dish.miss .dname,.dish.miss .desc{color:var(--ink-3)}
 .dish.unknown .dname{color:var(--ink-2)}
 .only .dish.miss,.only .dish.unknown,.only .course.nohit{display:none}
-.more{margin-top:5px;font-size:12px;color:var(--ink-3);text-decoration:underline;text-underline-offset:3px}
+.more{margin-top:0;padding:7px 0;font-size:12px;color:var(--ink-3);text-decoration:underline;text-underline-offset:3px}
 .more:hover{color:var(--ink)}
 .course:not(.open) .dish.extra{display:none}
 .nomatch,.empty{font-size:13.5px;color:var(--ink-3);padding:10px 0}
 .empty h3{margin:0 0 4px;font:500 17px/1.2 var(--serif);color:var(--ink)}
 
 /* the one-place page */
-.one .back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-3);margin-bottom:18px}
+.one .back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-3);padding:6px 0;margin-bottom:12px}
+.maptop .back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-3);padding:6px 0;margin:0}
 .one .back:hover{color:var(--ink)}
 .panel.big{padding:0 16px 16px;margin:0 -16px;border-radius:12px}
 .panel.big .phead{grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:start;padding:14px 16px 13px;margin:0 -16px;border-radius:12px 12px 0 0}
-.panel.big .dish{padding:8px 16px;margin:0 -16px}
+.panel.big .dish{padding:10px 14px;margin:0 0 4px}
 .panel.big .crest{align-self:start;margin-top:3px}
 .panel.big .crest{width:44px;height:44px}
 .panel.big .mono{width:40px;height:40px;font-size:14px;padding-bottom:6px}
@@ -375,6 +392,9 @@ footer .mark{color:var(--ink-3)}
 footer p{margin:0}
 footer .np{color:var(--ink-2)}
 footer a{color:var(--ink-2)}
+/* the source list is read with a thumb as often as a mouse, so its rows are given room */
+#sources li,#credits li{line-height:1.9}
+#sources a,#credits a{display:inline-block;padding:2px 0}
 footer details{margin-top:2px}
 footer details summary{cursor:pointer;list-style:none;color:var(--ink-2);font-weight:500}
 footer details summary{display:flex;align-items:center;gap:7px}
@@ -384,7 +404,7 @@ footer details[open] summary::after{transform:rotate(-135deg) translate(-1px,-1p
 footer details p{margin:9px 0 0;max-width:62ch}
 footer details ul{margin:8px 0 0;padding-left:16px}
 footer b{font-weight:600;color:var(--ink-2)}
-#wipe{margin-top:4px}
+#wipe{padding:7px 0;margin-top:4px}
 
 @media(max-width:1099px){
   .cols{gap:26px}
@@ -409,7 +429,6 @@ footer b{font-weight:600;color:var(--ink-2)}
 .courses > .course:first-child{padding-top:10px}
   .finder{padding:10px 0 0}
 }
-
 </style>
 </head>
 <body>
@@ -437,8 +456,6 @@ footer b{font-weight:600;color:var(--ink-2)}
   <div class="bar" id="bar">
     <div class="rowA">
       <button class="topmark" id="topmark" aria-label="Back to top" hidden><svg class="mark" width="28" height="28" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><g transform="translate(16.00 16.00) scale(1.041) translate(-16.51 -16.17)"><path fill="#E4173C" d="M11.73 25.22 L 10.92 24.96 10.18 24.56 9.51 24.11 8.86 23.67 8.25 23.21 7.69 22.7 7.2 22.14 6.78 21.54 6.42 20.9 6.12 20.25 5.89 19.6 5.73 18.93 5.63 18.25 5.6 17.57 5.63 16.89 5.73 16.22 5.9 15.55 6.14 14.91 6.46 14.29 6.83 13.71 7.28 13.18 7.78 12.7 8.38 12.24 9.05 11.79 9.74 11.37 10.47 10.96 11.23 10.57 12.05 10.21 12.93 9.9 13.88 9.64 14.91 9.46 16.01 9.38 17.19 9.42 L17.41 6.73 L 15.99 6.66 14.65 6.7 13.38 6.84 12.2 7.05 11.08 7.33 10.04 7.67 9.06 8.07 8.15 8.51 7.3 9 6.49 9.53 5.68 10.13 4.88 10.83 4.17 11.62 3.54 12.49 3.01 13.42 2.58 14.4 2.27 15.43 2.08 16.48 2 17.56 2.06 18.63 2.24 19.7 2.55 20.73 2.98 21.71 3.5 22.61 4.09 23.46 4.76 24.25 5.5 24.98 6.3 25.65 7.16 26.26 8.11 26.76 9.13 27.11 10.18 27.36 11.25 27.57 A1.2 1.2 0 0 0 11.73 25.22 Z"/><path fill="#FFCE2B" d="M15.23 12.71 L 14.71 13.23 14.25 13.8 13.83 14.4 13.47 15.05 13.18 15.72 12.94 16.42 12.78 17.14 12.68 17.88 12.66 18.62 12.7 19.35 12.82 20.08 13 20.8 13.24 21.49 13.55 22.16 13.91 22.79 14.33 23.39 14.8 23.95 15.31 24.46 15.83 24.91 16.37 25.32 16.94 25.71 17.54 26.07 18.16 26.4 18.81 26.7 19.5 26.95 20.21 27.14 20.96 27.28 21.73 27.37 22.52 27.41 23.33 27.39 24.16 27.31 25 27.18 25.86 27 L25.36 24.96 L 24.66 25.1 23.97 25.16 23.3 25.16 22.65 25.11 22.03 25.02 21.44 24.88 20.88 24.71 20.34 24.52 19.82 24.3 19.32 24.07 18.85 23.81 18.4 23.52 17.98 23.2 17.59 22.86 17.21 22.5 16.9 22.13 16.62 21.74 16.38 21.33 16.18 20.9 16.01 20.46 15.89 20 15.8 19.54 15.75 19.08 15.74 18.61 15.77 18.15 15.83 17.68 15.93 17.23 16.06 16.78 16.23 16.35 16.43 15.92 16.67 15.52 16.95 15.14 17.26 14.77 A1.45 1.45 0 0 0 15.23 12.71 Z"/><path fill="#FFCE2B" d="M30.72 28.49 L 30.37 29.05 29.9 29.51 29.32 29.87 28.68 30.1 27.99 30.19 27.29 30.15 26.61 29.96 26.05 29.68 25.63 29.33 25.3 28.87 25.08 28.33 24.97 27.73 24.98 27.09 25.1 26.46 25.34 25.85 25.68 25.28 26.11 24.8 26.6 24.4 27.15 24.12 27.71 23.97 28.28 23.95 28.81 24.06 29.38 24.34 29.94 24.77 30.4 25.3 30.75 25.9 30.96 26.55 31.03 27.22 30.95 27.87 Z"/><path fill="#E4173C" d="M16.08 9.55 L 16.4 9.66 16.8 10.04 17.24 10.55 17.68 11.05 18.07 11.39 18.36 11.43 18.63 11.4 18.92 11.42 19.22 11.46 19.52 11.5 19.8 11.51 20.07 11.46 20.32 11.36 20.57 11.24 20.81 11.11 21.06 10.99 21.31 10.89 L18.79 2.72 L 18.52 2.79 18.25 2.83 17.98 2.86 17.71 2.89 17.44 2.95 17.19 3.06 16.96 3.23 16.74 3.43 16.52 3.63 16.29 3.81 16.05 3.94 15.83 4.14 15.7 4.64 15.62 5.29 15.54 5.97 15.43 6.51 15.23 6.78 Z"/><path fill="#E4173C" d="M18.37 4.76 L 19.14 4.52 19.91 4.29 20.67 4.05 A1 1 0 0 0 20.08 2.14 L 19.32 2.38 18.55 2.61 17.78 2.85 Z"/><path fill="#E4173C" d="M19.39 8.06 L 20.25 7.79 21.11 7.53 21.97 7.26 A1 1 0 0 0 21.38 5.35 L 20.52 5.61 19.66 5.88 18.8 6.15 Z"/><path fill="#E4173C" d="M20.41 11.35 L 21.17 11.12 21.94 10.88 22.71 10.64 A1 1 0 0 0 22.12 8.73 L 21.35 8.97 20.58 9.21 19.82 9.44 Z"/></g></svg></button>
-      <button class="act findbtn" id="findBtn" aria-expanded="false" aria-controls="finder"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Find</button>
-      <button class="act mapbtn" id="mapBtn" aria-pressed="false">Map</button>
       <nav class="scroll days" id="days" aria-label="Day"></nav>
       <span class="rule"></span>
       <div class="sits" id="sits" role="group" aria-label="Meal"></div>
@@ -449,6 +466,9 @@ footer b{font-weight:600;color:var(--ink-2)}
       </div>
     </div>
     <div class="rowBC">
+      <button class="act findbtn" id="findBtn" aria-expanded="false" aria-controls="finder"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Find</button>
+      <button class="act mapbtn" id="mapBtn" aria-pressed="false"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>Map</button>
+      <span class="rule"></span>
       <div class="scroll" id="diet" role="group" aria-label="Dietary filters">
         <button class="chip k-meat" data-diet="meat" aria-pressed="false">Meat</button>
       <button class="chip k-fish" data-diet="fish" aria-pressed="false">Fish</button>
@@ -500,7 +520,9 @@ footer b{font-weight:600;color:var(--ink-2)}
   <section class="mapview" id="mapview" aria-label="Map of every place" hidden>
     <div class="maptop">
       <button class="back" data-view="all"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>All places</button>
+      <span class="maponly" id="mapOnly" hidden></span>
       <button class="fitall" id="fitAll">Fit every place</button>
+      <button class="fitall" id="mapAll" hidden>Show every place</button>
     </div>
     <p class="mapnote">Opening the map loads it from OpenStreetMap, so they see your address the way any website does. Nothing else on this page reaches outside. Pick a place to read what it is serving.</p>
     <div class="mapbox" id="mapbox" role="application" aria-label="Map of every place. Each pin opens that menu."></div>
@@ -610,6 +632,10 @@ const COPY = {
  "offline": "You're offline, so these are the last menus we loaded.",
  "mapNote": "Opening the map loads it from OpenStreetMap, so they see your address the way any website does. Nothing else on this page reaches outside. Pick a place to read what it is serving.",
  "seeMenu": "See this menu",
+ "showOnMap": "Show on the map",
+ "showOnMapAria": "Show {college} on the map",
+ "mapOnlyLine": "Showing {college} on its own",
+ "openInMaps": "Walking directions in Google Maps",
  "partialMarksAll": "Some kitchens only label some of their dishes, so an unlabelled one might still suit you."
 };
 const TAGS = {
@@ -1193,27 +1219,26 @@ const PLACES = {
 
 /* Where each place is (Wikidata / the University map) and its own colour (from its website). */
 const INFO = {
-  jesus:     { lat:52.20911, lng:0.12339, c:"#B6160F" },
-  churchill: { lat:52.21259, lng:0.10360, c:"#F31913" },
-  clarehall: { lat:52.20404, lng:0.10420, c:"#FDE614" },
-  corpus:    { lat:52.20316, lng:0.11833, c:"#0D37A5",
+  jesus:     { lat:52.20911, lng:0.12339, c:"#B33020" },
+  churchill: { lat:52.21259, lng:0.10360, c:"#DB3724" },
+  clarehall: { lat:52.20404, lng:0.10420, c:"#CDBA18" },
+  corpus:    { lat:52.20316, lng:0.11833, c:"#3845A9",
                spots:[{ n:"Leckhampton", lat:52.20150, lng:0.10093, meals:["dinner"], days:"2345",
                         note:"Leckhampton is the postgraduate site on Grange Road. Its hall serves dinner only, Tuesday to Friday in term. The college publishes one menu, the main site's, so the dishes listed here are cooked on Trumpington Street. You may need a key from the Porters' Lodge to get in." }] },
-  darwin:    { lat:52.20056, lng:0.11361, c:"#E9BD13" },
-  downing:   { lat:52.20062, lng:0.12384, c:"#2E3191" },
-  magdalene: { lat:52.21028, lng:0.11611, c:"#0D5F9D" },
-  newnham:   { lat:52.20000, lng:0.10750, c:"#1095C8" },
-  queens:    { lat:52.20222, lng:0.11472, c:"#659831" },
-  robinson:  { lat:52.20472, lng:0.10528, c:"#1161D8" },
-  selwyn:    { lat:52.20083, lng:0.10556, c:"#D74B53" },
-  stjohns:   { lat:52.20806, lng:0.11667, c:"#6460D6" },
-  wolfson:   { lat:52.19835, lng:0.10091, c:"#FD1514" },
-  trinity:   { lat:52.20694, lng:0.11694, c:"#FA1614" },
-  stedmunds: { lat:52.21294, lng:0.10868, c:"#D61D3B" },
-  westhub:   { lat:52.21032, lng:0.08980, c:"#FC7514" },
-  greenwich: { lat:52.21524, lng:0.09575, c:"#5A5450" },
-  scholars:  { lat:52.20878, lng:0.08989, c:"#093C70" }
-};
+  darwin:    { lat:52.20056, lng:0.11361, c:"#C49F16" },
+  downing:   { lat:52.20062, lng:0.12384, c:"#45419B" },
+  magdalene: { lat:52.21028, lng:0.11611, c:"#0764A6" },
+  newnham:   { lat:52.20000, lng:0.10750, c:"#0F89B8" },
+  queens:    { lat:52.20222, lng:0.11472, c:"#5D8C2E" },
+  robinson:  { lat:52.20472, lng:0.10528, c:"#3663CB" },
+  selwyn:    { lat:52.20083, lng:0.10556, c:"#C94B51" },
+  stjohns:   { lat:52.20806, lng:0.11667, c:"#6760C8" },
+  wolfson:   { lat:52.19835, lng:0.10091, c:"#E13724" },
+  trinity:   { lat:52.20694, lng:0.11694, c:"#DF3724" },
+  stedmunds: { lat:52.21294, lng:0.10868, c:"#C93340" },
+  westhub:   { lat:52.21032, lng:0.08980, c:"#DC6B20" },
+  greenwich: { lat:52.21524, lng:0.09575, c:"#725743" },
+  scholars:  { lat:52.20878, lng:0.08989, c:"#184B87" }};
 /* Each colour is the one its arms are actually painted in: the commonest strongly
    coloured pixel of the crest below, so a hall's tab matches its shield. */
 /* arms from Wikimedia Commons, credited in the footer */
@@ -1817,7 +1842,10 @@ function locate(quiet){
     if (quiet) store.set("useLoc", false); else locMsg(COPY.locationBlocked);
   }, { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 });
 }
-const unbusy = () => $$("[data-near]").forEach(b => { b.classList.remove("busy"); b.removeAttribute("aria-busy"); });
+const unbusy = () => {
+  $$("[data-near]").forEach(b => { b.classList.remove("busy"); b.removeAttribute("aria-busy"); });
+  $$(".maploc").forEach(b => b.classList.remove("busy"));   /* the map has its own */
+};
 function forgetLocation(){
   origin = null; reach = 0;
   store.set("useLoc", false);
@@ -2014,8 +2042,8 @@ function headHTML(c, big, m, s){
     '<span class="crest">' + crestHTML(c.id, 30) + "</span>" +
     "<div><h2>" + (big ? name : '<button class="name" data-open="' + c.id + '">' + name + "</button>") + "</h2>" +
     (meta.length ? '<div class="m">' + meta.join("") + "</div>" : "") + "</div>" +
-    '<div class="acts"><a class="act" href="' + navUrl(c.id) + '" target="_blank" rel="noopener" aria-label="' +
-      esc(fill(COPY.takeMeThereAria, { college: c.full })) + '">' + ICON.nav + (big ? "Directions" : "") + "</a></div></header>" +
+    '<div class="acts"><button class="act" data-spot="' + c.id + '" aria-label="' +
+      esc(fill(COPY.showOnMapAria, { college: c.full })) + '">' + ICON.nav + (big ? COPY.showOnMap : "") + "</button></div></header>" +
     (!big && m && m.label !== SIT_LABEL[s] && m.label !== SIT_LABEL.menu
       ? '<div class="serving">' + esc(m.label) + (m.hours ? " " + esc(m.hours) : "") + "</div>" : "") + siteNote;
 }
@@ -2147,9 +2175,15 @@ const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
 /* The map view. #mapbox is never rewritten, so pan, zoom and any open popup survive a re-render. */
 function renderMapView(list, s){
+  const only = mapOnly && college(mapOnly);
+  $("mapOnly").hidden = !only;
+  $("mapAll").hidden = !only;
+  $("fitAll").hidden = !!only;
+  if (only) $("mapOnly").textContent = fill(COPY.mapOnlyLine, { college: only.full });
   withLeaflet().then(L => {
     if (!map){
-      map = L.map("mapbox", { scrollWheelZoom: false, attributionControl: true, tap: false });
+      map = L.map("mapbox", { scrollWheelZoom: true, attributionControl: true, tap: false, zoomControl: false });
+      L.control.zoom({ position: "bottomright" }).addTo(map);
       tiles = L.tileLayer(TILE_URL, { maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }).addTo(map);
       pins = L.layerGroup().addTo(map);
@@ -2157,9 +2191,15 @@ function renderMapView(list, s){
       loc.onAdd = () => {
         const b = L.DomUtil.create("button", "maploc");
         b.type = "button";
-        b.innerHTML = ICON.nav + "Locate me";
+        b.innerHTML = ICON.nav + '<span class="ml">' + (origin ? "Back to me" : "Locate me") + "</span>";
         L.DomEvent.disableClickPropagation(b);
-        b.onclick = () => { origin ? map.setView([origin.lat, origin.lng], 16) : locate(); };
+        b.onclick = () => {
+          if (origin) return map.flyTo([origin.lat, origin.lng], 16, { duration: .6 });
+          b.classList.add("busy");
+          locate();
+          const label = () => { const s = b.querySelector(".ml"); if (s) s.textContent = origin ? "Back to me" : "Locate me"; };
+          setTimeout(label, 1200); setTimeout(label, 4000);
+        };
         return b;
       };
       loc.addTo(map);
@@ -2167,7 +2207,7 @@ function renderMapView(list, s){
       map.on("zoomend", () => $("mapbox").classList.toggle("tight", map.getZoom() < 14));
       if (window.ResizeObserver) new ResizeObserver(() => map.invalidateSize()).observe($("mapbox"));
     }
-    drawPins(L, list, s);
+    drawPins(L, only ? [only] : list, s);
     map.invalidateSize();
     fitMap(false);
   }).catch(() => {
@@ -2209,7 +2249,7 @@ function drawPins(L, list, s){
           (n ? '<p class="pnote">' + esc(site.note || "") + "</p>"
              : (when ? '<p class="pwhen">' + esc(when) + "</p>" : "") + (m ? "" : '<p class="pwhen">' + esc(COPY.emptyNoMenu) + "</p>")) +
           '<a class="pmenu" href="#' + c.id + '" data-menu="' + c.id + '">' + esc(COPY.seeMenu) + "</a>" +
-          '<a class="pnav" href="' + nav + '" target="_blank" rel="noopener">Walking directions</a>')
+          '<a class="pnav" href="' + nav + '" target="_blank" rel="noopener">' + ICON.nav + esc(COPY.openInMaps) + "</a>")
         .addTo(pins);
       here.push([site.lat, site.lng]);
     });
@@ -2227,11 +2267,12 @@ function drawPins(L, list, s){
 /* Fit once when the map is first opened, and again only when asked. A map you have panned
    is a map you meant to pan, so changing the day must not throw it away. */
 let mapPoints = [];
+let mapOnly = null;              /* one hall on its own map, opened from that hall's pin button */
 function fitMap(force){
   if (!map || !mapPoints.length) return;
-  if (!force && map._fitted) return;
+  if (!force && map._fitted && !mapOnly) return;
   map._fitted = true;
-  map.fitBounds(force ? mapPoints : opening(), { padding: [30, 30], maxZoom: 16 });
+  map.fitBounds(force || mapOnly ? mapPoints : opening(), { padding: [30, 30], maxZoom: mapOnly ? 17 : 16 });
   $("mapbox").classList.toggle("tight", map.getZoom() < 14);
 }
 /* What the map opens on. Fitting all nineteen puts a phone at zoom 13, where the pins pile
@@ -2367,7 +2408,8 @@ function openOne(id){
   render({ fade: true });
   window.scrollTo({ top: 0, behavior: "auto" });
 }
-function showMap(){
+function showMap(only){
+  mapOnly = only || null;
   view = "map";
   try { history.replaceState(null, "", "#map"); } catch(e){}
   if (finderOpen) openFinder(false);
@@ -2422,8 +2464,10 @@ document.addEventListener("click", e => {
   else if (d.themeBtn !== undefined) setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark", true);
   else if (t.id === "clearPrefs"){ diets.clear(); avoids.clear(); store.set("diets", []); store.set("avoids", []); render(); }
   else if (t.id === "findBtn"){ openFinder(!finderOpen); }
-  else if (t.id === "mapBtn"){ view === "map" ? showAll(false) : showMap(); }
+  else if (t.id === "mapBtn"){ view === "map" && !mapOnly ? showAll(false) : showMap(null); }
+  else if (d.spot){ showMap(d.spot); }
   else if (t.id === "fitAll"){ fitMap(true); }
+  else if (t.id === "mapAll"){ mapOnly = null; render(); fitMap(true); }
   else if (t.id === "wipe"){
     try { Object.keys(localStorage).filter(k => k.indexOf("caffs.") === 0).forEach(k => localStorage.removeItem(k)); } catch(e){}
     location.reload();
