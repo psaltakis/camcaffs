@@ -158,7 +158,7 @@ const COLLEGES = [
     url: 'https://www.catering.admin.cam.ac.uk/cafes/greenwich-house-cafe',
     fetch: function(){ return fetchUniCafe_('https://www.catering.admin.cam.ac.uk/cafes/greenwich-house-cafe'); } },
   { id: 'scholars',  name: 'Scholars Brew', full: 'Scholars Brew', cafe: true,
-    note: 'A café on Charles Babbage Road by the West Hub, open 08:00 to 16:00. One spud bar list a week, so the same fillings run Monday to Friday.',
+    note: 'A café on Charles Babbage Road by the West Hub, open 08:00 to 16:00. Its page lists the hot dishes for each weekday, with their sides, and no dietary marks.',
     url: 'https://www.catering.admin.cam.ac.uk/cafes/scholars-brew',
     fetch: function(){ return fetchScholars_(); } }
 ];
@@ -1045,33 +1045,64 @@ function parseWestHub_(html){
   return days;
 }
 
-/* ---------- Scholars Brew (one spud bar list a week) ---------- */
+/* ---------- Scholars Brew (two hot dishes a day, and their sides) ---------- */
 
 function fetchScholars_(){
-  const html = get_('https://www.catering.admin.cam.ac.uk/cafes/scholars-brew');
-  const cut = html.split(/Week\s+commencing/i);
+  return parseScholars_(get_('https://www.catering.admin.cam.ac.uk/cafes/scholars-brew'));
+}
+
+/* "Week commencing 12th October", then each weekday in bold over its list: two dishes and
+   "Sides: Taco slaw with pink pickled onions & Sauté potatoes", which go with the dishes above
+   them, so they are those dishes' description rather than a dish. A list with no weekdays
+   (how it used to be: one spud bar list a week) runs Monday to Friday. */
+function parseScholars_(html){
+  const cut = String(html || '').split(/Week\s+commencing/i);
   if (cut.length < 2) return [];
   const wc = text_(cut[1].slice(0, 120)).match(/(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)/);
   if (!wc) return [];
   const printed = mondayOf_(dayMonth_(Number(wc[1]), wc[2]));
-  const dishes = [];
-  (cut[1].split(/<h[123]\b/)[0].match(/<li[\s\S]*?<\/li>/g) || []).forEach(function(li){
-    const x = tagged_(text_(li));
-    if (x.name) dishes.push(x);
+  const lists = {}, order = [];
+  let dow = -1, since = [];
+  const list = function(){ if (!lists[dow]){ lists[dow] = []; order.push(dow); } return lists[dow]; };
+  cut[1].split(/<h[123]\b/)[0].replace(/<strong[^>]*>([\s\S]*?)<\/strong>|<li[\s\S]*?<\/li>/g, function(all, bold){
+    if (bold !== undefined){
+      const d = text_(bold).toLowerCase().match(/^(mon|tues|wednes|thurs|fri|satur|sun)day\b/);
+      if (d){ dow = WEEKDAYS.indexOf(d[1] + 'day'); since = []; }
+      return all;
+    }
+    const t = text_(all);
+    const sides = t.match(/^sides?\s*:\s*(.+)$/i);
+    if (sides && since.length){
+      since.forEach(function(x){ x.desc = 'Sides: ' + sides[1]; });
+      since = [];
+      return all;
+    }
+    const x = tagged_(t);
+    if (x.name){ list().push(x); since.push(x); }
+    return all;
   });
-  if (!dishes.length) return [];
+  if (!order.length) return [];
 
   /* they don't always update on time: show the list they last put out, and say which week it was */
   const monday = mondayOf_(today_());
   const late = printed < monday;
+  const start = late ? monday : printed;
   const note = late ? 'Their last published list, for the week of ' + niceDate_(printed) + '.' : '';
+  const daily = order.some(function(d){ return d >= 0; });
   const days = [];
-  for (let i = 0; i < 5; i++){
-    const d = { date: addDays_(late ? monday : printed, i),
-                lunch: [{ name: 'Pizza, pasta & jackets', dishes: JSON.parse(JSON.stringify(dishes)) }] };
+  const put = function(date, dishes, course){
+    const d = { date: date, lunch: [{ name: course, dishes: JSON.parse(JSON.stringify(dishes)) }] };
     if (note) d.notes = { lunch: [note] };
     days.push(d);
+  };
+  if (!daily){
+    for (let i = 0; i < 5; i++) put(addDays_(start, i), lists[-1], 'Pizza, pasta & jackets');
+    return days;
   }
+  order.forEach(function(d){
+    if (d < 0) return;
+    put(addDays_(start, (d + 6) % 7), (lists[-1] || []).concat(lists[d]), 'Mains');
+  });
   return days;
 }
 
@@ -1151,8 +1182,12 @@ function titleCase_(s){
     return low.charAt(0).toUpperCase() + low.slice(1);
   });
 }
+/* A price written into a name: "£3.78 / £4.83", "(£2.50)", "£4". */
+const PRICE_ = '£\\s?(?:\\d+(?:[.,]\\d{1,2})?|[.,]\\d{1,2})(?:\\s*(?:\\/|or|[-–])\\s*£\\s?(?:\\d+(?:[.,]\\d{1,2})?|[.,]\\d{1,2}))*';
+const PRICE_RE = new RegExp('\\s*[(\\[]\\s*' + PRICE_ + '\\s*[)\\]]|(?:\\s*\\/)?\\s*' + PRICE_ + '(?!\\d)', 'g');
 function tidyDish_(x){
   let n = String(x.name || '').replace(/\s+/g, ' ').trim();
+  n = n.replace(PRICE_RE, ' ').replace(/\s+/g, ' ').trim();        // no prices, as below
   n = n.replace(BRAND_RE, '');
   n = n.replace(/\s*\*+[^*]*\*+\s*/g, ' ');                       // *CONTAINS ALCOHOL* and friends
   /* Marks written into the name become tags. */
@@ -1542,7 +1577,11 @@ function pdfRuns_(bytes){
         });
         if (x0 === null || !text) return;
         const size = Math.abs(fs * Math.hypot(tm[2] * ctm[0] + tm[3] * ctm[2], tm[2] * ctm[1] + tm[3] * ctm[3])) || fs;
-        runs.push({ page: pi, x: x0, y: top - y0, x1: x1, size: size, bold: font.bold, text: text });
+        const run = { page: pi, x: x0, y: top - y0, x1: x1, size: size, bold: font.bold, text: text };
+        /* Text set on its side ("LUNCH" running up a merged cell): y is where it starts, y1 where it ends. */
+        const end = mul_(tm, ctm);
+        if (Math.abs(end[1]) > Math.abs(end[0])) run.y1 = top - end[5];
+        runs.push(run);
       };
       for (;;){
         p.ws();
@@ -1601,7 +1640,19 @@ function hexStr_(h){ h = h || ''; if (h.length % 2) h += '0'; let s = ''; for (l
    A line remembers whether it ended on a space run of its own, which is how
    Word marks the end of a paragraph (a wrapped line ends on its last word). */
 function pdfLines_(runs){
-  const sorted = runs.slice().sort(function(a, b){ return a.page - b.page || Math.round(a.y / 2) - Math.round(b.y / 2) || a.x - b.x; });
+  const order = function(a, b){ return a.page - b.page || Math.round(a.y / 2) - Math.round(b.y / 2) || a.x - b.x; };
+  /* Text on its side is a line of its own: the pieces that follow one another up (or down) the
+     page, in the order they were drawn, are joined, and the line keeps where it ends as y1. */
+  const side = [];
+  runs.forEach(function(r){
+    if (r.y1 === undefined) return;
+    const l = side.length ? side[side.length - 1] : null;
+    if (l && l.page === r.page && Math.abs(l.x - r.x) < r.size * 0.3 && Math.abs(r.y - l.y1) < r.size * 0.6){
+      l.text += (Math.abs(r.y - l.y1) > r.size * 0.12 && !/\s$/.test(l.text) && !/^\s/.test(r.text) ? ' ' : '') + r.text;
+      l.y1 = r.y1;
+    } else side.push({ page: r.page, x: r.x, y: r.y, x1: r.x1, y1: r.y1, size: r.size, bold: r.bold, text: r.text, paraEnd: false });
+  });
+  const sorted = runs.filter(function(r){ return r.y1 === undefined; }).sort(order);
   const lines = [];
   sorted.forEach(function(r){
     const l = lines.length ? lines[lines.length - 1] : null;
@@ -1618,8 +1669,9 @@ function pdfLines_(runs){
     }
     lines.push({ page: r.page, x: r.x, y: r.y, x1: r.x1, size: r.size, bold: r.bold, text: r.text, paraEnd: false });
   });
-  lines.forEach(function(l){ l.text = l.text.replace(/\s+/g, ' ').trim(); });
-  return lines.filter(function(l){ return l.text; });
+  const all = side.length ? lines.concat(side).sort(order) : lines;
+  all.forEach(function(l){ l.text = l.text.replace(/\s+/g, ' ').trim(); });
+  return all.filter(function(l){ return l.text; });
 }
 
 /* ---------- Trinity (weekly PDF, a Word table) ---------- */
@@ -2186,10 +2238,36 @@ function pembrokeWeeks_(html){
 }
 
 /* Each day: a main, an alternative and an allergen-friendly dish for lunch and for dinner,
-   then a pudding and sides that go with both. */
+   then a pudding and sides that go with both. The rows are "Main dish", "Alternative dish",
+   "Allergen friendly dish", "Dessert" and "Sides", the meal beside them or in their label.
+   The menu is in capitals, so "BUTTER BEAN STEW" over "WITH SPINACH AND HERB DUMPLINGS" looks
+   like two dishes: every row but the sides holds one dish, so all its lines are that dish. */
 function parsePembroke_(lines, monday){
   return gridDays_(readWeekPdf_(lines, /^(lunch|brunch|dinner|supper|mains?|alternative|allergen|pudding|desserts?|sides?|vegetarian|vegan|soup)\b/i),
-    monday, { shared: /pudding|dessert|sides?/i, desc: /allergen/i, plain: /^(mains?|alternative)$/i });
+    monday, { shared: /pudding|dessert|sides?/i, desc: /allergen/i, plain: /^(mains?|alternative)$/i,
+              single: /^(mains?|alternative|allergen|desserts?|puddings?|soups?)\b/i, twice: true,
+              label: pemLabel_, dish: pemDish_ });
+}
+
+/* "MAIN DISH" -> "Main", "ALLERGEN FRIENDLY DISH" -> "Allergen friendly", "PUDDING" -> "Desserts". */
+function pemLabel_(label){
+  const s = label.replace(/\s+(dish|dishes|option|course)$/i, '').trim();
+  if (!s) return s;
+  if (/^allergen/i.test(s)) return 'Allergen friendly';
+  if (/^(puddings?|desserts?)$/i.test(s)) return 'Desserts';
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+}
+
+/* "GF BATTERED FISH": gluten-free, and still called "GF Battered Fish". */
+function pemDish_(x){
+  const m = x.name.match(/^(g\.?\s?f\.?|gluten[- ]free)\s+(?=\S)/i);
+  if (!m) return x;
+  add_(x.diet, 'gluten-free');
+  let rest = x.name.slice(m[0].length);
+  const letters = rest.replace(/[^A-Za-z]/g, ''), caps = rest.replace(/[^A-Z]/g, '');
+  if (letters.length > 3 && caps.length / letters.length > 0.7) rest = titleCase_(rest);
+  x.name = (/^gluten/i.test(m[1]) ? 'Gluten-free ' : 'GF ') + rest;
+  return x;
 }
 
 /* ---------- St Catharine's (four-week cycle of PDFs) ---------- */
@@ -2455,6 +2533,14 @@ function readWeekPdf_(lines, labelRe){
   return across ? weekAcross_(days, body, labelRe) : weekDown_(days, body, labelRe);
 }
 
+/* "LUNCH" (or "Dinner 17:30–19:00") on its own beside or above the rows: it heads a section of
+   the table rather than naming a row. */
+const MEAL_LABEL_ = /^(breakfast|lunch|brunch|dinner|supper)(\s+(service|menu))?\s*:?\s*\(?\s*(\d{1,2}[:.]\d{2}\s*[–-]\s*\d{1,2}[:.]\d{2})?\s*\)?$/i;
+
+/* A line's top and bottom down the page (where it starts and ends, for text on its side). */
+function lineTop_(l){ return l.y1 !== undefined ? Math.min(l.y, l.y1) : l.y - l.size * 0.8; }
+function lineBottom_(l){ return l.y1 !== undefined ? Math.max(l.y, l.y1) : l.y + l.size * 0.2; }
+
 /* Days as columns, labels (if any) down the left. */
 function weekAcross_(days, lines, labelRe){
   days.sort(function(a, b){ return a.cx - b.cx; });
@@ -2467,21 +2553,83 @@ function weekAcross_(days, lines, labelRe){
   const banners = below.filter(function(l){
     return margin.indexOf(l) < 0 && l.x1 - l.x > gap * 1.6 && /^(no\s+)?(breakfast|lunch|brunch|dinner|supper)\b/i.test(l.text);
   });
-  const labels = mergeLabels_(margin, 'y').filter(function(g){ return !labelRe || labelRe.test(g.text); })
+  const keep = function(g){ return !labelRe || labelRe.test(g.text); };
+  /* Rows named down the side ("Main dish", "Alternative dish", "Sides") inside LUNCH and DINNER
+     sections, the meal in a column further left or printed across the table: the rows are the
+     labels, and each takes the meal of its section. Without both, the labels are the rows as before. */
+  const meals = margin.filter(function(l){ return MEAL_LABEL_.test(l.text); });
+  const rows = mergeLabels_(margin.filter(function(l){ return meals.indexOf(l) < 0; }), 'y').filter(keep)
+    .sort(function(a, b){ return a.y - b.y; });
+  const sections = meals.concat(banners.filter(function(l){ return !/^no\s/i.test(l.text); }));
+  const sectioned = rows.length > 0 && sections.length > 0;
+  const labels = sectioned ? rows : mergeLabels_(margin, 'y').filter(keep)
     .concat(banners.map(function(l){ return { text: l.text, y: l.y, x: (l.x + l.x1) / 2, parts: [l], last: l }; }))
     .sort(function(a, b){ return a.y - b.y; });
   const content = below.filter(function(l){ return margin.indexOf(l) < 0 && banners.indexOf(l) < 0 && l.x1 > left; });
   const cut = bands_(labels.map(function(g){ return g.y; }),
     content.map(function(l){ return [l.y - l.size * 0.95, l.y + l.size * 0.3]; }));
+  const placed = [];
   content.forEach(function(l){
     const cx = (l.x + l.x1) / 2;
     if (cx < left || cx > right || l.x1 - l.x > gap * 1.6) return;   // a banner across several days
     let i = 0;
     while (i < days.length - 1 && cx > (days[i].cx + days[i + 1].cx) / 2) i++;
-    l.label = labels.length ? labels[bandOf_(cut, l.y)].text : '';
+    if (labels.length){ l.row = bandOf_(cut, l.y); l.label = labels[l.row].text; }
+    else { l.label = ''; delete l.row; }
     days[i].lines.push(l);
+    placed.push(l);
   });
+  if (sectioned){
+    /* Each row's extent down the page: its label and everything in its band. */
+    const span = labels.map(function(g){
+      return { lo: Math.min.apply(null, g.parts.map(lineTop_)), hi: Math.max.apply(null, g.parts.map(lineBottom_)) };
+    });
+    placed.forEach(function(l){
+      const s = span[l.row];
+      s.lo = Math.min(s.lo, lineTop_(l)); s.hi = Math.max(s.hi, lineBottom_(l));
+    });
+    const heads = sections.map(function(l){ return { lo: lineTop_(l), hi: lineBottom_(l), size: l.size, meal: l.text.match(MEAL_WORD_)[1] }; })
+      .sort(function(a, b){ return a.lo - b.lo; });
+    const which = sectionOf_(span, heads, Math.max(heads[0].size, labels[0].last.size) * 0.8);
+    placed.forEach(function(l){
+      const g = labels[l.row];
+      if (!MEAL_WORD_.test(g.text)) l.label = heads[which[l.row]].meal + ' ' + g.text;
+    });
+  }
   return days.map(cells_);
+}
+
+/* Which section each row (or column) belongs to. rows and heads: [{ lo, hi }] in order along the
+   page. A first heading level with or ahead of the first row heads the rows from there on (a label
+   at the top of its section, or a banner); otherwise each heading sits in the middle of its rows
+   (centred on a merged cell), and its rows are the run that centres on it. */
+function sectionOf_(rows, heads, tol){
+  const out = [];
+  if (heads[0].lo <= rows[0].lo + tol){
+    rows.forEach(function(r, i){
+      let k = 0;
+      while (k + 1 < heads.length && heads[k + 1].lo <= r.lo + tol) k++;
+      out[i] = k;
+    });
+    return out;
+  }
+  let s = 0;
+  heads.forEach(function(h, k){
+    if (s >= rows.length) return;
+    let e = rows.length - 1;
+    if (k < heads.length - 1){
+      const c = (h.lo + h.hi) / 2;
+      let best = Infinity;
+      e = s;
+      for (let j = s; j <= rows.length - (heads.length - k); j++){
+        const d = Math.abs((rows[s].lo + rows[j].hi) / 2 - c);
+        if (d < best){ best = d; e = j; }
+      }
+    }
+    for (let j = s; j <= e; j++) out[j] = k;
+    s = e + 1;
+  });
+  return out;
 }
 
 /* Days as rows, labels (if any) across the top. */
@@ -2489,8 +2637,13 @@ function weekDown_(days, lines, labelRe){
   days.sort(function(a, b){ return a.cy - b.cy; });
   const edge = Math.max.apply(null, days.map(function(d){ return d.head.x1; }));
   const top = days[0].cy - days[0].head.size;
-  const labels = mergeLabels_(lines.filter(function(l){ return l.y < top && l.x > edge - 2; }), 'x')
-    .filter(function(g){ return labelRe && labelRe.test(g.text); });
+  const head = lines.filter(function(l){ return l.y < top && l.x > edge - 2; });
+  const keep = function(g){ return labelRe && labelRe.test(g.text); };
+  /* LUNCH and DINNER over groups of columns ("Main dish", "Alternative dish"...), as in weekAcross_. */
+  const meals = head.filter(function(l){ return MEAL_LABEL_.test(l.text); });
+  const cols = mergeLabels_(head.filter(function(l){ return meals.indexOf(l) < 0; }), 'x').filter(keep);
+  const sectioned = cols.length > 0 && meals.length > 0;
+  const labels = sectioned ? cols : mergeLabels_(head, 'x').filter(keep);
   const content = lines.filter(function(l){ return l.y >= top && l.x > edge - 2; });
   const cut = bands_(days.map(function(d){ return d.cy; }),
     content.map(function(l){ return [l.y - l.size * 0.95, l.y + l.size * 0.3]; }));
@@ -2498,12 +2651,34 @@ function weekDown_(days, lines, labelRe){
     const day = days[bandOf_(cut, l.y)];
     if (labels.length){
       const cx = (l.x + l.x1) / 2;
-      let best = labels[0];
-      labels.forEach(function(g){ if (Math.abs(g.x - cx) < Math.abs(best.x - cx)) best = g; });
-      l.label = best.text;
-    } else l.label = '';
+      let best = 0;
+      labels.forEach(function(g, i){ if (Math.abs(g.x - cx) < Math.abs(labels[best].x - cx)) best = i; });
+      l.row = best; l.label = labels[best].text;
+    } else { l.label = ''; delete l.row; }
     day.lines.push(l);
   });
+  if (sectioned){
+    const order = labels.map(function(g, i){ return i; }).sort(function(a, b){ return labels[a].x - labels[b].x; });
+    const span = order.map(function(i){
+      const g = labels[i];
+      return { i: i, lo: Math.min.apply(null, g.parts.map(function(p){ return p.x; })), hi: Math.max.apply(null, g.parts.map(function(p){ return p.x1; })) };
+    });
+    const at = {};
+    span.forEach(function(s, j){ at[s.i] = j; });
+    content.forEach(function(l){
+      if (l.row === undefined) return;
+      const s = span[at[l.row]];
+      s.lo = Math.min(s.lo, l.x); s.hi = Math.max(s.hi, l.x1);
+    });
+    const heads = meals.map(function(l){ return { lo: l.x, hi: l.x1, size: l.size, meal: l.text.match(MEAL_WORD_)[1] }; })
+      .sort(function(a, b){ return a.lo - b.lo; });
+    const which = sectionOf_(span, heads, Math.max(heads[0].size, labels[order[0]].last.size) * 0.8);
+    content.forEach(function(l){
+      if (l.row === undefined) return;
+      const g = labels[l.row];
+      if (!MEAL_WORD_.test(g.text)) l.label = heads[which[at[l.row]]].meal + ' ' + g.text;
+    });
+  }
   return days.map(cells_);
 }
 
@@ -2541,12 +2716,14 @@ function bands_(anchors, spans){
 }
 function bandOf_(cut, y){ let i = 0; while (i < cut.length && y > cut[i]) i++; return i; }
 
-/* A day's lines grouped into cells by label, in reading order. */
+/* A day's lines grouped into cells by row (or by label where there are no rows), in reading order.
+   Two rows with the same label (Main dish at lunch and at dinner) are two cells. */
 function cells_(day){
   const cells = [], index = {};
   day.lines.sort(function(a, b){ return a.y - b.y || a.x - b.x; }).forEach(function(l){
-    if (!index[l.label]){ index[l.label] = { label: l.label, lines: [] }; cells.push(index[l.label]); }
-    index[l.label].lines.push(l);
+    const key = (l.row === undefined ? '' : l.row) + '|' + l.label;
+    if (!index[key]){ index[key] = { label: l.label, lines: [] }; cells.push(index[key]); }
+    index[key].lines.push(l);
   });
   return { dow: day.dow, cells: cells };
 }
@@ -2555,20 +2732,33 @@ function cells_(day){
    opts.shared: courses that go with every meal of the day (Pembroke's pudding and sides);
    opts.desc: labels that describe a dish rather than name a course ("Counter 1");
    opts.plain: labels that say nothing about the course ("Alternative"), so the dish name decides;
-   opts.prep: a college's own marks rewritten into the usual ones before they are read. */
+   opts.prep: a college's own marks rewritten into the usual ones before they are read;
+   opts.label: a college's row labels rewritten into plain ones ("ALLERGEN FRIENDLY DISH" -> "Allergen friendly");
+   opts.single: rows that hold one dish, so all their lines are that dish (not at brunch, which is a list);
+   opts.twice: no LUNCH or DINNER anywhere, but the same rows twice: the second set is dinner;
+   opts.dish: a last look at each dish once its marks are read. */
 const MEAL_HEAD_ = /^(no\s+)?(breakfast|lunch|brunch|dinner|supper|sunday roast)\b\s*:?\s*(\d{1,2}[:.]\d{2}\s*[–-]\s*\d{1,2}[:.]\d{2})?\s*$/i;
 const COURSE_HEAD_ = /^(soups?|starters?|mains?|sides?|desserts?|puddings?|salads?)\s*:?$/i;
+
+/* A wrapped line put back: "UP-SIDE-" and "DOWN" is "UP-SIDE-DOWN". */
+function joinLine_(a, b){ return /[A-Za-z]-$/.test(a) ? a + b : a + ' ' + b; }
 
 function gridDays_(week, monday, opts){
   return (week || []).map(function(w){
     const day = { date: addDays_(monday, (w.dow + 6) % 7) };
-    const shared = [];
+    const shared = [], seen = {};
     let meal = opts.meal || null;
     w.cells.forEach(function(cell){
       let course = cell.label;
       const mw = (course.match(MEAL_WORD_) || [])[1];
       if (mw){ meal = mealOf_(mw, day); course = course.replace(MEAL_WORD_, ''); }
       course = course.replace(/^[\s:–-]+|[\s:–-]+$/g, '');
+      if (opts.label) course = opts.label(course);
+      if (opts.twice && !mw && course && !(opts.shared && opts.shared.test(course))){
+        if (seen[course]) meal = 'dinner';
+        else if (!meal) meal = 'lunch';
+        seen[course] = true;
+      }
       let cur = meal, sub = course;
       const items = [];
       cell.lines.forEach(function(l){
@@ -2587,11 +2777,13 @@ function gridDays_(week, monday, opts){
         if (t.length <= 40 && /\bformal\b|^matriculation dinner$|\bguest night\b/i.test(t)){ cur = 'formal'; note_(day, 'dinner', t); return; }
         /* "Soup", "Mains", "Sides" inside the cell start that course. */
         const sec = t.match(COURSE_HEAD_);
-        if (sec){ sub = sec[1]; return; }
+        if (sec){ sub = opts.label ? opts.label(sec[1]) : sec[1]; return; }
         const prev = items.length ? items[items.length - 1] : null;
-        const wrapped = prev && prev.meal === cur && prev.course === sub &&
-          (/^[a-z(&]/.test(t) || /[,&–-]$|\b(with|and|or|in|on|of)$/i.test(prev.text));
-        if (wrapped) prev.text += ' ' + t;
+        const same = prev && prev.meal === cur && prev.course === sub;
+        const one = same && opts.single && opts.single.test(sub) && cur !== 'breakfast' &&
+          !(cur === 'lunch' && day.labels && day.labels.lunch === 'Brunch');
+        const wrapped = one || same && (/^[a-z(&]/.test(t) || /[,&–-]$|\b(with|and|or|in|on|of)$/i.test(prev.text));
+        if (wrapped) prev.text = joinLine_(prev.text, t);
         else items.push({ text: t, meal: cur, course: sub });
       });
       items.forEach(function(it){
@@ -2599,21 +2791,25 @@ function gridDays_(week, monday, opts){
         if (/^(closed|no (service|lunch|dinner|brunch|supper)\b.*|not open.*)$/i.test(it.text)){ note_(day, it.meal || 'lunch', it.text); return; }
         const x = tagged_(opts.prep ? opts.prep(it.text) : it.text);
         if (!x.name) return;
+        if (opts.dish) opts.dish(x);
         const course = it.course;
         let name = course;
         if (opts.desc && opts.desc.test(course)){ x.desc = course; name = ''; }
         else if (opts.plain && opts.plain.test(course)) name = '';
-        if (!it.meal || (opts.shared && opts.shared.test(course))){ shared.push({ name: name, dish: x }); return; }
+        if (!it.meal || (opts.shared && opts.shared.test(course))){ shared.push({ name: name, dish: x, meal: it.meal }); return; }
         const list = day[it.meal] = day[it.meal] || [];
         let c = list.filter(function(k){ return k.name === name; })[0];
         if (!c){ c = { name: name, dishes: [] }; list.push(c); }
         c.dishes.push(x);
       });
     });
-    /* Pudding and sides: under every meal that has dishes, or lunch if none does. */
+    /* Pudding and sides: under every meal that has dishes, or lunch if none does; but when lunch
+       and dinner each have a row of their own, each row stays with its meal. */
     const meals = ['lunch', 'dinner'].filter(function(m){ return has_(day[m]); });
+    const own = {};
+    shared.forEach(function(s){ if (s.meal) add_(own[s.name] = own[s.name] || [], s.meal); });
     shared.forEach(function(s){
-      (meals.length ? meals : ['lunch']).forEach(function(m){
+      (s.meal && own[s.name].length > 1 ? [s.meal] : meals.length ? meals : ['lunch']).forEach(function(m){
         const list = day[m] = day[m] || [];
         let c = list.filter(function(k){ return k.name === s.name; })[0];
         if (!c){ c = { name: s.name, dishes: [] }; list.push(c); }
