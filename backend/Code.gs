@@ -26,8 +26,9 @@
                  the college's WordPress feed
      Fitzwilliam the Buttery's weekly PDF, dated only by its link text
      Homerton    the catering page's menu widget, through its JSON API
-     Lucy Cav.   a Canva design, a column a day (V is vegan, Vn vegetarian);
-                 not yet seen working, see probeLucy()
+     Lucy Cav.   NOT IN COLLEGES: its menu is a Canva design, and Canva answers
+                 Apps Script with a bot check (403, 16 Oct 2026). The reader is
+                 kept below (fetchLucy_, probeLucy) in case that changes.
      Pembroke    a three-week cycle of PDFs; the page lists the weeks each is served
      Peterhouse  petmenu.co.uk/servery.json, a student-run copy of the College's
                  PDFs, the whole term in one file
@@ -106,10 +107,6 @@ const COLLEGES = [
   { id: 'homerton',  name: 'Homerton',   full: 'Homerton College',
     url: 'https://www.homerton.cam.ac.uk/catering',
     fetch: function(){ return fetchHomerton_(); } },
-  { id: 'lucycavendish', name: 'Lucy Cavendish', full: 'Lucy Cavendish College',
-    note: 'Lucy Cavendish posts the week as a Canva design. Its own key has V for vegan and Vn for vegetarian; they are shown here as the usual marks.',
-    url: 'https://www.lucy.cam.ac.uk/dining-hall-and-cafe',
-    fetch: function(){ return fetchLucy_(); } },
   { id: 'magdalene', name: 'Magdalene',  full: 'Magdalene College', marks: 'full',
     note: 'Magdalene publishes the same weekly menu on a rota, with no dates on it, so it is shown against this week.',
     url: 'https://viewthe.menu/lyzv',
@@ -2251,10 +2248,9 @@ function parseStCatharines_(lines, monday, meal){
    they were drawn, so the text is read together with where each box sits, and then goes through
    the same week-table reader as the PDFs.
 
-   NOT YET SEEN WORKING: Canva could not be reached from where this was written. What Canva
-   hands a script (the design itself, or a bot check) and the shape of its data are guesses.
-   Run probeLucy() once from the editor and send the log; the reading of the page is tested,
-   the getting of it is not. */
+   NOT IN USE: on 16 Oct 2026 probeLucy() found Canva answering Apps Script with a bot check
+   (403 on both the view and the embed link), so Lucy Cavendish is left out of COLLEGES.
+   The reading of the page is tested and kept here in case Canva lets scripts in later. */
 
 const LUCY_CANVA = 'https://www.canva.com/design/DAFvirNLKtg/view';
 
@@ -2695,7 +2691,7 @@ function debugNewColleges(){
     });
   };
   [['Homerton', fetchHomerton_], ['Peterhouse', fetchPeterhouse_], ['Fitzwilliam', fetchFitzwilliam_],
-   ['Pembroke', fetchPembroke_], ['St Catharine’s', fetchStCatharines_], ['Lucy Cavendish', fetchLucy_]].forEach(function(p){
+   ['Pembroke', fetchPembroke_], ['St Catharine’s', fetchStCatharines_]].forEach(function(p){
     try { show(p[0], p[1]()); } catch (e) { Logger.log(p[0] + ' failed: ' + e); }
   });
   fitzWeeks_(get_(FITZ_PAGE)).forEach(function(w){ dump(w.url); });
