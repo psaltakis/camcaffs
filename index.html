@@ -347,7 +347,7 @@ html[data-theme="dark"] .avoid[aria-pressed="true"]{color:#1A0F0C}
 .maponly{margin-right:auto}
 .mapfall .empty{padding:30px 24px 24px}
 .mapfall .fgrid{padding:0 8px 8px}
-.mapbox{width:100%;height:clamp(360px,64vh,760px);border-radius:20px;overflow:hidden;background:var(--map);box-shadow:var(--lift),inset 0 0 0 .5px var(--edge)}
+.mapbox{width:100%;height:clamp(360px,64vh,760px);isolation:isolate;border-radius:20px;overflow:hidden;background:var(--map);box-shadow:var(--lift),inset 0 0 0 .5px var(--edge)}
 .pin{display:grid;justify-items:center;gap:2px;width:80px;color:var(--ink-2)}
 /* the crest stands a little off the map: a close soft shadow and a wider faint one */
 .pin img,.pin .mono{width:34px;height:34px;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.22)) drop-shadow(0 4px 7px rgba(0,0,0,.16));
@@ -711,6 +711,76 @@ footer a{color:var(--accent)}
 }
 
 /* ============ print: clean cards, two columns, nothing to press ============ */
+
+/* ============ the phone ============
+   Built for one hand: the mark and name always sit at the top, one slim row of days and
+   sittings follows you down, and the things you reach for (menus, map, search, near me)
+   live in a tab bar under your thumb. Wider screens keep the layout above. */
+.tabbar{display:none}
+.brand .apptitle{display:none}            /* the phone's app bar only */
+.day.today .dn{display:none}
+@media(max-width:719px){
+  :root{--appbar:calc(54px + env(safe-area-inset-top,0px));--tabbar:calc(60px + env(safe-area-inset-bottom,0px))}
+  body{padding-top:0;padding-bottom:calc(var(--tabbar) + 28px)}
+  /* the app bar: never scrolls away */
+  header.top{position:sticky;top:0;z-index:40;min-height:0;height:var(--appbar);box-sizing:border-box;
+    margin:0 calc(-1 * var(--gut));padding:env(safe-area-inset-top,0px) calc(var(--gut) - 4px) 0 var(--gut);gap:4px;
+    background:var(--paper)}
+  @supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+    header.top{background:var(--bar);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px)}
+  }
+  .brand{gap:9px;min-height:44px}
+  .brand .mark{width:30px;height:30px}
+  .brand b{font-size:18px}
+  header.top .brand small.apptitle{display:block;margin-top:1px;font:500 12.5px/1.2 var(--sans);color:var(--ink-2);white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;max-height:0;opacity:0;transition:max-height .22s var(--in),opacity .18s var(--in)}
+  .wrap.stuck header.top .brand small.apptitle{max-height:16px;opacity:1}
+  header.top #locBtn{display:none}                 /* Near me lives in the tab bar */
+  header.top .roundbtn{width:44px;height:44px;margin:0}
+  /* the title under it: big, then out of the way */
+  .hero{margin:6px 0 10px}
+  .ltitle{font-size:30px;letter-spacing:-.025em}
+  /* one slim row that follows you: the days, then lunch or dinner */
+  .bar{top:var(--appbar);padding:6px var(--gut) 8px}
+  .barrow{flex-wrap:nowrap;gap:8px}
+  .brk,.topmark,.cluster,.homebtn,.findgrp{display:none!important}
+  .dayseg{flex:1 1 auto;min-width:0;--fade:36px}
+  .sitseg{flex:0 0 auto}
+  .seg-items button{height:40px;padding:0 11px}
+  .dayseg .seg-items{grid-auto-columns:minmax(52px,1fr)}
+  .dayseg .seg-items .day{display:grid;align-content:center;justify-items:center;gap:1px;padding:0 8px;line-height:1}
+  .day .dw{font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--ink-3);text-transform:uppercase}
+  .day[aria-pressed="true"] .dw{color:var(--accent)}
+  .day .dn{margin:0;font-size:16.5px;font-weight:650;letter-spacing:-.01em}
+  .day.today .dn{display:block}
+  /* searching swaps that row for the search field */
+  .wrap.searching .dayseg,.wrap.searching .sitseg{display:none}
+  .wrap.searching .findgrp{display:flex!important;flex:1 1 auto;min-width:0}
+  .wrap.searching .findgrp .mapbtn{display:none}
+  .finder{max-height:calc(100svh - var(--appbar) - var(--stick) - var(--tabbar) - 16px);overflow:auto;overscroll-behavior:contain}
+  .panel{scroll-margin-top:calc(var(--appbar) + var(--stick) + 12px)}
+  /* the map fills the screen between the bars */
+  .wrap[data-view="map"] .hero,.wrap[data-view="map"] .mapnote,.wrap[data-view="map"] .maptop{display:none}
+  .wrap[data-view="map"] .mapview{margin-top:4px}
+  .mapbox{height:calc(100svh - var(--appbar) - var(--stick) - var(--tabbar) - 76px);min-height:320px;border-radius:18px}
+  .pin .pn{font-size:10.5px} .pin .pt{font-size:10px}
+  /* the tab bar */
+  .tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:45;
+    padding:5px calc(8px + env(safe-area-inset-right,0px)) calc(5px + env(safe-area-inset-bottom,0px)) calc(8px + env(safe-area-inset-left,0px));
+    background:var(--paper);border-top:.5px solid var(--hair)}
+  @supports ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+    .tabbar{background:var(--bar);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px)}
+  }
+  .tab{display:grid;justify-items:center;align-content:center;gap:3px;min-height:50px;border-radius:12px;color:var(--ink-3);
+    font:600 11px/1.1 var(--sans);letter-spacing:.01em;-webkit-tap-highlight-color:transparent}
+  .tab svg{width:25px;height:25px}
+  .tab[aria-pressed="true"]{color:var(--accent)}
+  .tab:active{background:var(--track)}
+  .tab.busy svg{animation:spin 1s linear infinite}
+}
+@media(max-width:719px) and (prefers-reduced-motion:reduce){ header.top .brand small.apptitle{transition:none} .tab.busy svg{animation:none} }
+@media print{ .tabbar{display:none!important} header.top{position:static!important;height:auto!important} body{padding-bottom:0!important} }
+
 @media print{
   @page{margin:12mm 11mm}
   html,body{background:#fff!important}
@@ -788,7 +858,7 @@ footer a{color:var(--accent)}
 <symbol id="g-info" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.2" fill="currentColor" fill-opacity=".12"/><path d="M8 7.3v3.9"/><circle cx="8" cy="4.9" r=".85" fill="currentColor" stroke="none"/></g></symbol>
 <symbol id="g-offline" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 12.4h6.9a2.8 2.8 0 0 0 .5-5.6 4.1 4.1 0 0 0-7.9-.6 3.1 3.1 0 0 0 .5 6.2z" fill="currentColor" fill-opacity=".15"/><path d="M2.3 2.3l11.4 11.4"/></g></symbol>
 <symbol id="g-warn" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.2l6.1 10.9H1.9z" fill="currentColor" fill-opacity=".15"/><path d="M8 6.4v3.1"/><circle cx="8" cy="11.3" r=".8" fill="currentColor" stroke="none"/></g></symbol>
-<symbol id="g-search" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.4 10.4l3.8 3.8"/></g></symbol>
+<symbol id="g-map" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M5.6 2.6 1.8 3.9v9.5l3.8-1.3 4.8 1.3 3.8-1.3V2.6l-3.8 1.3-4.8-1.3Z" fill="currentColor" fill-opacity=".12"/><path d="M5.6 2.6v9.5M10.4 3.9v9.5"/></g></symbol><symbol id="g-search" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.4 10.4l3.8 3.8"/></g></symbol>
 <symbol id="g-pin" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14.4s4.8-4.1 4.8-7.6a4.8 4.8 0 0 0-9.6 0c0 3.5 4.8 7.6 4.8 7.6z" fill="currentColor" fill-opacity=".15"/><circle cx="8" cy="6.8" r="1.7"/></g></symbol>
 <symbol id="g-locate" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="4.6"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/><path d="M8 1.2v1.9M8 12.9v1.9M1.2 8h1.9M12.9 8h1.9"/></g></symbol>
 <symbol id="g-plate" viewBox="0 0 16 16"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8.4" r="5.4"/><circle cx="8" cy="8.4" r="3.1" fill="currentColor" fill-opacity=".15"/><path d="M1.3 2.2v3.1a1 1 0 0 0 2 0V2.2M2.3 6.3v7.3M14.7 13.6V2.4c-1.3.6-1.9 2.2-1.9 4.3v2.1h1.9"/></g></symbol>
@@ -801,7 +871,7 @@ footer a{color:var(--accent)}
   <header class="top">
     <a class="brand" href="#all" id="homeLink">
       <svg class="mark" width="34" height="34" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><g transform="translate(16.00 16.00) scale(1.041) translate(-16.51 -16.17)"><path fill="#E4173C" d="M11.73 25.22 L 10.92 24.96 10.18 24.56 9.51 24.11 8.86 23.67 8.25 23.21 7.69 22.7 7.2 22.14 6.78 21.54 6.42 20.9 6.12 20.25 5.89 19.6 5.73 18.93 5.63 18.25 5.6 17.57 5.63 16.89 5.73 16.22 5.9 15.55 6.14 14.91 6.46 14.29 6.83 13.71 7.28 13.18 7.78 12.7 8.38 12.24 9.05 11.79 9.74 11.37 10.47 10.96 11.23 10.57 12.05 10.21 12.93 9.9 13.88 9.64 14.91 9.46 16.01 9.38 17.19 9.42 L17.41 6.73 L 15.99 6.66 14.65 6.7 13.38 6.84 12.2 7.05 11.08 7.33 10.04 7.67 9.06 8.07 8.15 8.51 7.3 9 6.49 9.53 5.68 10.13 4.88 10.83 4.17 11.62 3.54 12.49 3.01 13.42 2.58 14.4 2.27 15.43 2.08 16.48 2 17.56 2.06 18.63 2.24 19.7 2.55 20.73 2.98 21.71 3.5 22.61 4.09 23.46 4.76 24.25 5.5 24.98 6.3 25.65 7.16 26.26 8.11 26.76 9.13 27.11 10.18 27.36 11.25 27.57 A1.2 1.2 0 0 0 11.73 25.22 Z"/><path fill="#FFCE2B" d="M15.23 12.71 L 14.71 13.23 14.25 13.8 13.83 14.4 13.47 15.05 13.18 15.72 12.94 16.42 12.78 17.14 12.68 17.88 12.66 18.62 12.7 19.35 12.82 20.08 13 20.8 13.24 21.49 13.55 22.16 13.91 22.79 14.33 23.39 14.8 23.95 15.31 24.46 15.83 24.91 16.37 25.32 16.94 25.71 17.54 26.07 18.16 26.4 18.81 26.7 19.5 26.95 20.21 27.14 20.96 27.28 21.73 27.37 22.52 27.41 23.33 27.39 24.16 27.31 25 27.18 25.86 27 L25.36 24.96 L 24.66 25.1 23.97 25.16 23.3 25.16 22.65 25.11 22.03 25.02 21.44 24.88 20.88 24.71 20.34 24.52 19.82 24.3 19.32 24.07 18.85 23.81 18.4 23.52 17.98 23.2 17.59 22.86 17.21 22.5 16.9 22.13 16.62 21.74 16.38 21.33 16.18 20.9 16.01 20.46 15.89 20 15.8 19.54 15.75 19.08 15.74 18.61 15.77 18.15 15.83 17.68 15.93 17.23 16.06 16.78 16.23 16.35 16.43 15.92 16.67 15.52 16.95 15.14 17.26 14.77 A1.45 1.45 0 0 0 15.23 12.71 Z"/><path fill="#FFCE2B" d="M30.72 28.49 L 30.37 29.05 29.9 29.51 29.32 29.87 28.68 30.1 27.99 30.19 27.29 30.15 26.61 29.96 26.05 29.68 25.63 29.33 25.3 28.87 25.08 28.33 24.97 27.73 24.98 27.09 25.1 26.46 25.34 25.85 25.68 25.28 26.11 24.8 26.6 24.4 27.15 24.12 27.71 23.97 28.28 23.95 28.81 24.06 29.38 24.34 29.94 24.77 30.4 25.3 30.75 25.9 30.96 26.55 31.03 27.22 30.95 27.87 Z"/><path fill="#E4173C" d="M16.08 9.55 L 16.4 9.66 16.8 10.04 17.24 10.55 17.68 11.05 18.07 11.39 18.36 11.43 18.63 11.4 18.92 11.42 19.22 11.46 19.52 11.5 19.8 11.51 20.07 11.46 20.32 11.36 20.57 11.24 20.81 11.11 21.06 10.99 21.31 10.89 L18.79 2.72 L 18.52 2.79 18.25 2.83 17.98 2.86 17.71 2.89 17.44 2.95 17.19 3.06 16.96 3.23 16.74 3.43 16.52 3.63 16.29 3.81 16.05 3.94 15.83 4.14 15.7 4.64 15.62 5.29 15.54 5.97 15.43 6.51 15.23 6.78 Z"/><path fill="#E4173C" d="M18.37 4.76 L 19.14 4.52 19.91 4.29 20.67 4.05 A1 1 0 0 0 20.08 2.14 L 19.32 2.38 18.55 2.61 17.78 2.85 Z"/><path fill="#E4173C" d="M19.39 8.06 L 20.25 7.79 21.11 7.53 21.97 7.26 A1 1 0 0 0 21.38 5.35 L 20.52 5.61 19.66 5.88 18.8 6.15 Z"/><path fill="#E4173C" d="M20.41 11.35 L 21.17 11.12 21.94 10.88 22.71 10.64 A1 1 0 0 0 22.12 8.73 L 21.35 8.97 20.58 9.21 19.82 9.44 Z"/></g></svg>
-      <span><b>Cam Caffs</b><small id="tagline">Today&#x27;s menus from Cambridge colleges and cafés, side by side.</small></span>
+      <span><b>Cam Caffs</b><small class="apptitle" id="appTitle" aria-hidden="true"></small><small id="tagline">Today&#x27;s menus from Cambridge colleges and cafés, side by side.</small></span>
     </a>
     <button class="pillbtn" id="locBtn" data-near aria-pressed="false" aria-label="Sort places by walking distance"><svg class="i" aria-hidden="true"><use href="#g-locate"/></svg><span class="pl">Near me</span></button>
     <button class="roundbtn" data-theme-btn aria-label="Switch to dark mode" title="Dark mode"><svg class="i moon" aria-hidden="true"><use href="#g-moon"/></svg><svg class="i sun" aria-hidden="true"><use href="#g-sun"/></svg></button>
@@ -902,6 +972,12 @@ footer a{color:var(--accent)}
   </section>
   <p class="callout guessnote" id="guessNote" hidden><svg class="g" aria-hidden="true"><use href="#g-info"/></svg><span>Most kitchens here publish no dietary labels, so where a dish carries none we read it from its name. An outlined tile beside a dish is our reading, not the kitchen&#x27;s word, and a recipe can always change. If it matters to you, ask at the counter.</span></p>
 
+  <nav class="tabbar" id="tabbar" aria-label="Sections">
+    <button class="tab" data-tab="all" aria-pressed="true"><svg class="i" aria-hidden="true"><use href="#g-plate"/></svg><span>Menus</span></button>
+    <button class="tab" data-tab="map" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#g-map"/></svg><span>Map</span></button>
+    <button class="tab" data-tab="search" aria-pressed="false" aria-controls="search"><svg class="i" aria-hidden="true"><use href="#g-search"/></svg><span>Search</span></button>
+    <button class="tab" data-near aria-pressed="false" aria-label="Sort places by walking distance"><svg class="i" aria-hidden="true"><use href="#g-locate"/></svg><span>Near me</span></button>
+  </nav>
   <footer>
     <div class="card fcard">
       <p class="fhd"><svg class="mark" width="28" height="28" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><g transform="translate(16.00 16.00) scale(1.041) translate(-16.51 -16.17)"><path fill="#E4173C" d="M11.73 25.22 L 10.92 24.96 10.18 24.56 9.51 24.11 8.86 23.67 8.25 23.21 7.69 22.7 7.2 22.14 6.78 21.54 6.42 20.9 6.12 20.25 5.89 19.6 5.73 18.93 5.63 18.25 5.6 17.57 5.63 16.89 5.73 16.22 5.9 15.55 6.14 14.91 6.46 14.29 6.83 13.71 7.28 13.18 7.78 12.7 8.38 12.24 9.05 11.79 9.74 11.37 10.47 10.96 11.23 10.57 12.05 10.21 12.93 9.9 13.88 9.64 14.91 9.46 16.01 9.38 17.19 9.42 L17.41 6.73 L 15.99 6.66 14.65 6.7 13.38 6.84 12.2 7.05 11.08 7.33 10.04 7.67 9.06 8.07 8.15 8.51 7.3 9 6.49 9.53 5.68 10.13 4.88 10.83 4.17 11.62 3.54 12.49 3.01 13.42 2.58 14.4 2.27 15.43 2.08 16.48 2 17.56 2.06 18.63 2.24 19.7 2.55 20.73 2.98 21.71 3.5 22.61 4.09 23.46 4.76 24.25 5.5 24.98 6.3 25.65 7.16 26.26 8.11 26.76 9.13 27.11 10.18 27.36 11.25 27.57 A1.2 1.2 0 0 0 11.73 25.22 Z"/><path fill="#FFCE2B" d="M15.23 12.71 L 14.71 13.23 14.25 13.8 13.83 14.4 13.47 15.05 13.18 15.72 12.94 16.42 12.78 17.14 12.68 17.88 12.66 18.62 12.7 19.35 12.82 20.08 13 20.8 13.24 21.49 13.55 22.16 13.91 22.79 14.33 23.39 14.8 23.95 15.31 24.46 15.83 24.91 16.37 25.32 16.94 25.71 17.54 26.07 18.16 26.4 18.81 26.7 19.5 26.95 20.21 27.14 20.96 27.28 21.73 27.37 22.52 27.41 23.33 27.39 24.16 27.31 25 27.18 25.86 27 L25.36 24.96 L 24.66 25.1 23.97 25.16 23.3 25.16 22.65 25.11 22.03 25.02 21.44 24.88 20.88 24.71 20.34 24.52 19.82 24.3 19.32 24.07 18.85 23.81 18.4 23.52 17.98 23.2 17.59 22.86 17.21 22.5 16.9 22.13 16.62 21.74 16.38 21.33 16.18 20.9 16.01 20.46 15.89 20 15.8 19.54 15.75 19.08 15.74 18.61 15.77 18.15 15.83 17.68 15.93 17.23 16.06 16.78 16.23 16.35 16.43 15.92 16.67 15.52 16.95 15.14 17.26 14.77 A1.45 1.45 0 0 0 15.23 12.71 Z"/><path fill="#FFCE2B" d="M30.72 28.49 L 30.37 29.05 29.9 29.51 29.32 29.87 28.68 30.1 27.99 30.19 27.29 30.15 26.61 29.96 26.05 29.68 25.63 29.33 25.3 28.87 25.08 28.33 24.97 27.73 24.98 27.09 25.1 26.46 25.34 25.85 25.68 25.28 26.11 24.8 26.6 24.4 27.15 24.12 27.71 23.97 28.28 23.95 28.81 24.06 29.38 24.34 29.94 24.77 30.4 25.3 30.75 25.9 30.96 26.55 31.03 27.22 30.95 27.87 Z"/><path fill="#E4173C" d="M16.08 9.55 L 16.4 9.66 16.8 10.04 17.24 10.55 17.68 11.05 18.07 11.39 18.36 11.43 18.63 11.4 18.92 11.42 19.22 11.46 19.52 11.5 19.8 11.51 20.07 11.46 20.32 11.36 20.57 11.24 20.81 11.11 21.06 10.99 21.31 10.89 L18.79 2.72 L 18.52 2.79 18.25 2.83 17.98 2.86 17.71 2.89 17.44 2.95 17.19 3.06 16.96 3.23 16.74 3.43 16.52 3.63 16.29 3.81 16.05 3.94 15.83 4.14 15.7 4.64 15.62 5.29 15.54 5.97 15.43 6.51 15.23 6.78 Z"/><path fill="#E4173C" d="M18.37 4.76 L 19.14 4.52 19.91 4.29 20.67 4.05 A1 1 0 0 0 20.08 2.14 L 19.32 2.38 18.55 2.61 17.78 2.85 Z"/><path fill="#E4173C" d="M19.39 8.06 L 20.25 7.79 21.11 7.53 21.97 7.26 A1 1 0 0 0 21.38 5.35 L 20.52 5.61 19.66 5.88 18.8 6.15 Z"/><path fill="#E4173C" d="M20.41 11.35 L 21.17 11.12 21.94 10.88 22.71 10.64 A1 1 0 0 0 22.12 8.73 L 21.35 8.97 20.58 9.21 19.82 9.44 Z"/></g></svg>Cam Caffs</p>
@@ -3053,6 +3129,10 @@ function controls(dates, sits, s, list){
   $("search").setAttribute("aria-expanded", finderOpen);
   $("mapBtn").setAttribute("aria-pressed", view === "map");
   $("homeBtn").hidden = view === "all";      /* the way back lives in the bar, not only at the top of the page */
+  $("wrap").dataset.view = view;
+  tabs();
+  const sw = date ? sitWord(s, view === "one" ? [college(curId)] : list, date) : "";
+  $("appTitle").textContent = (view === "one" ? college(curId).name : date ? shortDate(date) : "") + (sw ? " · " + sw : "");
   $("search").placeholder = mqs[0].matches ? "Search places or dishes" : "Search";
   callout($("gfNote"), "nogluten", avoids.has("gluten") ? COPY.gfNote : "");
 
@@ -3063,8 +3143,9 @@ function controls(dates, sits, s, list){
   barKey = key;
   $("days").innerHTML = dates.map(dt => {
     const t = new Date(dt + "T12:00:00");
-    const label = dt === todayISO() ? COPY.today : DOW[t.getDay()] + " " + t.getDate();
-    return '<button class="day" data-date="' + dt + '" aria-pressed="' + (dt === date) + '" aria-label="' + esc(longDate(dt)) + '">' + label + "</button>";
+    const today = dt === todayISO();
+    const label = '<span class="dw">' + (today ? COPY.today : DOW[t.getDay()]) + '</span> <span class="dn">' + t.getDate() + "</span>";
+    return '<button class="day' + (today ? " today" : "") + '" data-date="' + dt + '" aria-pressed="' + (dt === date) + '" aria-label="' + esc(longDate(dt)) + '">' + label + "</button>";
   }).join("");
   $("sits").innerHTML = sits.map((k, i) => '<button data-sit="' + k + '" aria-pressed="' + (k === s) + '">' + esc(words[i]) + "</button>").join("");
   press($("days"), date, "date");
@@ -3398,7 +3479,7 @@ function renderLegend(){
 function watchPanels(){
   if (spy) spy.disconnect();
   if (!("IntersectionObserver" in window)) return;
-  const stick = $("bar").offsetHeight;
+  const stick = chromeH();
   spy = new IntersectionObserver(entries => {
     if (Date.now() < spyLock) return;
     const vis = entries.filter(e => e.isIntersecting)
@@ -3409,13 +3490,15 @@ function watchPanels(){
   }, { rootMargin: "-" + (stick + 12) + "px 0px -60% 0px", threshold: 0 });
   $$(".panel[data-id]").forEach(p => spy.observe(p));
 }
+/* what covers the top of the screen: the bar, and on a phone the app bar above it */
+const chromeH = () => $("bar").offsetHeight + (phone.matches ? document.querySelector("header.top").offsetHeight : 0);
 function jumpTo(id){
   curId = id;
   spotTile(id);
   const el = $("p-" + id);
   if (!el) return;
   spyLock = Date.now() + 1200;
-  const target = () => Math.max(0, el.getBoundingClientRect().top + window.scrollY - $("bar").offsetHeight - 12);
+  const target = () => Math.max(0, el.getBoundingClientRect().top + window.scrollY - chromeH() - 12);
   const far = Math.abs(target() - window.scrollY) > innerHeight * 3;
   window.scrollTo({ top: target(), behavior: reduced || far ? "auto" : "smooth" });
   const settle = () => { if (Math.abs(target() - window.scrollY) > 24) window.scrollTo({ top: target(), behavior: "auto" }); };
@@ -3471,8 +3554,9 @@ document.addEventListener("click", e => {
     else jumpTo(d.college);
   }
   else if (d.all !== undefined){ view === "all" ? window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" }) : showAll(true); }
-  else if (d.open){ if (finderOpen) $("search").blur(); openOne(d.open); }
+  else if (d.open){ if (finderOpen) $("search").blur(); searching(false); openOne(d.open); }
   else if (d.view){ d.view === "all" ? showAll(true) : openOne(curId); }
+  else if (d.tab) tab(d.tab);
   else if (d.date){ date = d.date; pickedDay = true; render({ fade: true }); }
   else if (d.sit){ sit = d.sit; render({ fade: true }); }
   else if (d.diet){ toggle(diets, d.diet); store.set("diets", [...diets]); render(); }
@@ -3502,6 +3586,28 @@ document.addEventListener("click", e => {
   else if (t.id === "allergyBtn"){ const open = $("allergies").hidden; $("allergies").hidden = !open; t.setAttribute("aria-expanded", open); }
   else if (t.id === "topmark") window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
 });
+/* the phone's tab bar: Menus, Map, Search; Near me is a [data-near] button like the others */
+const phone = matchMedia("(max-width:719px)");
+function tabs(){
+  const s = $("wrap").classList.contains("searching");
+  $$("[data-tab]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tab === "search" ? s : !s && (b.dataset.tab === "map") === (view === "map")));
+}
+function searching(on){
+  if ($("wrap").classList.contains("searching") === on) return;
+  $("wrap").classList.toggle("searching", on);
+  if (on) $("search").focus({ preventScroll: true });
+  else { if (finderOpen) openFinder(false); if (document.activeElement === $("search")) $("search").blur(); }
+  tabs();
+}
+function tab(k){
+  if (k === "search") return searching(!$("wrap").classList.contains("searching"));
+  searching(false);
+  if (k === "map") return view === "map" && !mapOnly ? showAll(false) : showMap(null);
+  if (view === "all") window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  else showAll(false);
+}
+const shortDate = dt => new Date(dt + "T12:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }).replace(",", "");
+
 /* the search field is the real input; the list of every place drops down under it while you use it */
 function openFinder(on){
   finderOpen = on;
@@ -3510,6 +3616,9 @@ function openFinder(on){
   if (on && DATA) renderFinder(sortedColleges(), currentSit);
 }
 $("findBox").addEventListener("click", e => { if (!e.target.closest("button")) $("search").focus(); });
+$("search").addEventListener("blur", () => setTimeout(() => {
+  if (phone.matches && document.activeElement !== $("search") && !$("search").value && !finderOpen) searching(false);
+}, 180));
 $("search").addEventListener("focus", () => { if (!finderOpen) openFinder(true); });
 document.addEventListener("pointerdown", e => {
   if (finderOpen && !e.target.closest("#finder, #findBox")) openFinder(false);
@@ -3560,12 +3669,16 @@ window.addEventListener("hashchange", () => {
 mqs.forEach(q => q.addEventListener("change", () => { if (DATA) render(); }));
 /* when the bar sticks, the mark and the two round buttons join it, and a hairline appears */
 const bar = $("bar");
-new IntersectionObserver(([e]) => {
-  const stuck = !e.isIntersecting && e.boundingClientRect.top < 0;
+const stickCheck = () => {
+  const stuck = window.scrollY > 0 && bar.getBoundingClientRect().top <= (parseFloat(getComputedStyle(bar).top) || 0) + 0.5;
+  if (stuck === $("wrap").classList.contains("stuck")) return;
   $("wrap").classList.toggle("stuck", stuck);
   $("topmark").hidden = !stuck;
   $("cluster").hidden = !stuck;
-}).observe($("sentinel"));
+};
+let stickRaf = 0;
+window.addEventListener("scroll", () => { if (!stickRaf) stickRaf = requestAnimationFrame(() => { stickRaf = 0; stickCheck(); }); }, { passive: true });
+window.addEventListener("resize", stickCheck);
 if ("ResizeObserver" in window){
   new ResizeObserver(() => document.documentElement.style.setProperty("--stick", bar.offsetHeight + "px")).observe(bar);
   const ro = new ResizeObserver(() => slideAll());
